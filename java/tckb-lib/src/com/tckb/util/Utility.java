@@ -36,7 +36,7 @@ public class Utility {
 
     private static void copy12(File file1, File file2) {
         try {
-            mylogger.log(Level.INFO, "Copy12:[{0}]->[{1}]{ ...", new Object[]{file1.getAbsolutePath(), file2.getAbsolutePath()});
+            mylogger.log(Level.INFO, "Copy12:[0}] -> [{1}]{ ...", new Object[]{file1.getAbsolutePath(), file2.getAbsolutePath()});
 
             FileChannel in = (new FileInputStream(file1)).getChannel();
             FileChannel out = (new FileOutputStream(file2)).getChannel();
@@ -57,38 +57,39 @@ public class Utility {
      * @param toFile
      * @return
      */
-    public static boolean copyToFolderAs(File fromFile, File folder, String asName) {
-        mylogger.log(Level.INFO, "Copying:[{0}] file to folder [{1}]", new Object[]{fromFile.getAbsolutePath(), folder.getAbsolutePath()});
+    public static File copyToFolderAs(File fromFile, File folder, String asName) {
+        mylogger.log(Level.INFO, "Copying:[{0}] file to folder [{1}]  as {2}", new Object[]{fromFile.getAbsolutePath(), folder.getAbsolutePath(), asName});
 
-        if (!folder.isDirectory()) {
-            mylogger.log(Level.SEVERE, "Folder {0} is not really a folder! COPY FAILED", new Object[]{folder.getAbsolutePath()});
+        if (!folder.isDirectory() || !folder.exists()) {
+            mylogger.log(Level.SEVERE, "Invalid folder {0} ! COPY FAILED", new Object[]{folder.getAbsolutePath()});
 
-            return false;
+            return null;
         }
         if (!fromFile.exists()) {
             mylogger.log(Level.SEVERE, "File {0} is doesn't exists! COPY FAILED", new Object[]{fromFile.getAbsolutePath()});
 
-            return false;
+            return null;
         } else {
             try {
-                File newFile = new File(folder.getAbsolutePath() + FILE_SEPERATOR + asName);
+                File newFile = new File(folder, asName);
                 if (!newFile.createNewFile()) {
                     mylogger.log(Level.SEVERE, "File {0} creation failed!", new Object[]{newFile.getAbsolutePath()});
 
-                    return false;
+                    return null;
                 } else {
                     copy12(fromFile, newFile);
                     mylogger.info("Copy completed");
-                    return true;
+                    return newFile;
                 }
 
 
 
             } catch (IOException ex) {
-            mylogger.log(Level.SEVERE, "Something went wrong; error while copying: ", ex);
+                mylogger.log(Level.SEVERE, "Something went wrong; error while copying: ", ex);
             }
         }
-        return false;
+
+        return null;
 
 
     }
@@ -101,13 +102,17 @@ public class Utility {
      */
     public static boolean copyToFolder(File fileToCopy, File folder) {
 
-        return copyToFolderAs(fileToCopy, folder, fileToCopy.getName());
+        if (copyToFolderAs(fileToCopy, folder, fileToCopy.getName()) != null) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public static File makeDuplicate(File thisFile) {
-        copyToFolder(thisFile, thisFile.getParentFile());
-        return null;
-        
+        mylogger.log(Level.INFO, "Duplicating {0}", new Object[]{thisFile.getAbsolutePath()});
+        return copyToFolderAs(thisFile, thisFile.getParentFile(), stripExtension(thisFile) + "_copy" + getExtension(thisFile));
+
     }
 
     public static String getSafePath(File file) {
@@ -163,11 +168,18 @@ public class Utility {
 
     public static String stripExtension(File file) {
         mylogger.log(Level.INFO, "Stripping extension: {0}", file.getName());
-        int i = file.getName().indexOf('.');
+        int i = file.getName().lastIndexOf(".");
         String s = file.getName().substring(0, i);
-        mylogger.log(Level.INFO, ". location{0}", i);
-        mylogger.log(Level.INFO, "name {0}", s);
+        mylogger.log(Level.FINE, ". location{0}", i);
+        mylogger.log(Level.FINE, "name {0}", s);
         return s;
+    }
+
+    public static String getExtension(File file) {
+        String fname = file.getName();
+        mylogger.log(Level.INFO, "Getting extension: {0}", fname);
+        String fNoext = stripExtension(file);
+        return fname.substring(fname.indexOf(fNoext)+fNoext.length());
     }
 
     /**
@@ -178,7 +190,7 @@ public class Utility {
      */
     public static String[] getWordsInFile(File f) {
 
-        return readFileAsString(f).split(WORD_BREAK);
+        return readFileAsLongString(f).split(WORD_BREAK);
     }
 
     /**
@@ -187,7 +199,7 @@ public class Utility {
      * @param f - file name
      * @return File contents as string
      */
-    public static String readFileAsString(File f) {
+    public static String readFile(File f, boolean preserveLineBreaks) {
 
         StringBuilder content = new StringBuilder();
         String line = null;
@@ -197,7 +209,12 @@ public class Utility {
             mylogger.log(Level.INFO, "Reading: [{0}] File: [{1}]", new Object[]{f.getName(), f.getAbsolutePath()});
             br = new BufferedReader(new FileReader(f));
             while ((line = br.readLine()) != null) {
-                content.append(line).append(" ");
+                if (preserveLineBreaks) {
+                    content.append(line).append(LINE_BREAK);
+
+                } else {
+                    content.append(line).append(WORD_BREAK);
+                }
             }
 
         } catch (FileNotFoundException ex) {
@@ -217,7 +234,25 @@ public class Utility {
     public static String readFileAsString(String fname) {
 
 
-        return readFileAsString(new File(fname));
+        return readFile(new File(fname), true);
+    }
+
+    public static String readFileAsString(File f) {
+
+
+        return readFile(f, true);
+    }
+
+    public static String readFileAsLongString(String fname) {
+
+
+        return readFile(new File(fname), false);
+    }
+
+    public static String readFileAsLongString(File f) {
+
+
+        return readFile(f, false);
     }
 
     /**
@@ -317,6 +352,7 @@ public class Utility {
 
     public static File getFileFromUI(JComponent parent) {
         JFileChooser jfc = new JFileChooser();
+        jfc.setDialogTitle("Utility: FileChooser");
         jfc.showOpenDialog(parent);
 
         return jfc.getSelectedFile();
