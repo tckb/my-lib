@@ -12,10 +12,13 @@ import java.io.File;
  * @author tckb
  */
 public class TestBed {
+
     public static void main(String[] args) {
-        
-       File someFile = Utility.getFileFromUI(null);
-       Utility.makeDuplicate(someFile);
+
+        File someFile = Utility.getFileFromUI(null);
+        File dupFile = Utility.makeDuplicate(someFile);
+        System.out.println("File Contents as long string: " + Utility.readFileAsLongString(dupFile));
+        System.out.println("File Contents: " + Utility.readFileAsString(dupFile));
+
     }
-    
 }

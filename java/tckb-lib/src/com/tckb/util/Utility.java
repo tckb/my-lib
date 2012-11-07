@@ -179,7 +179,7 @@ public class Utility {
         String fname = file.getName();
         mylogger.log(Level.INFO, "Getting extension: {0}", fname);
         String fNoext = stripExtension(file);
-        return fname.substring(fname.indexOf(fNoext)+fNoext.length());
+        return fname.substring(fname.indexOf(fNoext) + fNoext.length());
     }
 
     /**
@@ -194,12 +194,11 @@ public class Utility {
     }
 
     /**
-     * Returns file contents as long string NOTE: line breaks are NOT preserved!
      *
      * @param f - file name
      * @return File contents as string
      */
-    public static String readFile(File f, boolean preserveLineBreaks) {
+    private static String readFile(File f, boolean preserveLineBreaks) {
 
         StringBuilder content = new StringBuilder();
         String line = null;
