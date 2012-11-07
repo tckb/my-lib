@@ -26,17 +26,13 @@ public class Utility {
     // Public constants
     public final static String WORD_BREAK = " ";
     public final static String LINE_BREAK = System.getProperty("line.separator");
-    private static String currentAudioFile;
+    public final static String FILE_SEPERATOR = System.getProperty("path.separator");
+    public final static String OS_NAME = System.getProperty("os.name");
+    public final static String OS_ARC = System.getProperty("os.arch");
+    public final static String J_CLSPTH = System.getProperty("java.class.path");
+    public final static String USER_HME = System.getProperty("user.home");
+    public final static String USER_DIR = System.getProperty("user.dir");
     private static final Logger mylogger = Logger.getLogger("com.lia.core");
-
-    public static String getCurrentAudioFile() {
-        return currentAudioFile;
-    }
-
-    public static void setCurrentAudioFile(String currentAudioFile) {
-        mylogger.log(Level.INFO, "Current audio file changed : {0}", currentAudioFile);
-        Utility.currentAudioFile = currentAudioFile;
-    }
 
     private static void copy12(File file1, File file2) {
         try {
@@ -53,6 +49,65 @@ public class Utility {
 
         }
 
+    }
+
+    /**
+     *
+     * @param fromFile
+     * @param toFile
+     * @return
+     */
+    public static boolean copyToFolderAs(File fromFile, File folder, String asName) {
+        mylogger.log(Level.INFO, "Copying:[{0}] file to folder [{1}]", new Object[]{fromFile.getAbsolutePath(), folder.getAbsolutePath()});
+
+        if (!folder.isDirectory()) {
+            mylogger.log(Level.SEVERE, "Folder {0} is not really a folder! COPY FAILED", new Object[]{folder.getAbsolutePath()});
+
+            return false;
+        }
+        if (!fromFile.exists()) {
+            mylogger.log(Level.SEVERE, "File {0} is doesn't exists! COPY FAILED", new Object[]{fromFile.getAbsolutePath()});
+
+            return false;
+        } else {
+            try {
+                File newFile = new File(folder.getAbsolutePath() + FILE_SEPERATOR + asName);
+                if (!newFile.createNewFile()) {
+                    mylogger.log(Level.SEVERE, "File {0} creation failed!", new Object[]{newFile.getAbsolutePath()});
+
+                    return false;
+                } else {
+                    copy12(fromFile, newFile);
+                    mylogger.info("Copy completed");
+                    return true;
+                }
+
+
+
+            } catch (IOException ex) {
+            mylogger.log(Level.SEVERE, "Something went wrong; error while copying: ", ex);
+            }
+        }
+        return false;
+
+
+    }
+
+    /**
+     *
+     * @param fileToCopy
+     * @param folder
+     * @return
+     */
+    public static boolean copyToFolder(File fileToCopy, File folder) {
+
+        return copyToFolderAs(fileToCopy, folder, fileToCopy.getName());
+    }
+
+    public static File makeDuplicate(File thisFile) {
+        copyToFolder(thisFile, thisFile.getParentFile());
+        return null;
+        
     }
 
     public static String getSafePath(File file) {
@@ -330,7 +385,6 @@ public class Utility {
          */
         public static <K, V> LinkedHashMap<K, V> sortMapByKey(final Map<K, V> map, final SortingOrder sortingOrder) {
             Comparator<Map.Entry<K, V>> comparator = new Comparator<Entry<K, V>>() {
-
                 public int compare(Entry<K, V> o1, Entry<K, V> o2) {
                     return comparableCompare(o1.getKey(), o2.getKey(), sortingOrder);
                 }
@@ -350,7 +404,6 @@ public class Utility {
          */
         public static <K, V> LinkedHashMap<K, V> sortMapByValue(final Map<K, V> map, final SortingOrder sortingOrder) {
             Comparator<Map.Entry<K, V>> comparator = new Comparator<Entry<K, V>>() {
-
                 public int compare(Entry<K, V> o1, Entry<K, V> o2) {
                     return comparableCompare(o1.getValue(), o2.getValue(), sortingOrder);
                 }
