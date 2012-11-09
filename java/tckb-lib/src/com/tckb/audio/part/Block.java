@@ -3,26 +3,24 @@
  * and open the template in the editor.
  */
 package com.tckb.audio.part;
+
 import com.tckb.audio.ui.WvConstant;
 
 /**
  *
- * @author ctungathur
- * mport static com.lia.core.wave.WvConstant.RED_SAMPLE_256;
-
-/**
+ * @author ctungathur mport static com.lia.core.wave.WvConstant.RED_SAMPLE_256;
+ *
+ * /**
  */
 public class Block {
 
-    
-    
     private int redCnt;
     private Reduction[] redList;
 
     public Block(int size) {
 
 
-        redList = new Reduction[getNext((size), WvConstant.RED_SAMPLE_256)];
+        redList = new Reduction[getNext(size, WvConstant.RED_SAMPLE_256)];
         redCnt = 0;
 
 
@@ -75,42 +73,48 @@ public class Block {
 
     @Override
     public String toString() {
-        return "[id="+hashCode()+" RedCount =" + redCnt + " RedSize=" + WvConstant.RED_SAMPLE_256 + "]";
-    }
-    
-    
-    
-  public static class Reduction {
-
-    private double max;
-    private double min;
-    private int id;
-
-    public Reduction(double max, double min) {
-        this.max = max;
-        this.min = min;
+        return "[id=" + hashCode() + " RedCount =" + redCnt + " RedSize=" + WvConstant.RED_SAMPLE_256 + "]";
     }
 
-    public double getMax() {
-        return max;
-    }
+    public static class Reduction {
 
-    public void setMax(double max) {
-        this.max = max;
-    }
+        private double max;
+        private double min;
+        private double rms;
+        private int id;
 
-    public double getMin() {
-        return min;
-    }
+        public Reduction(double max, double min) {
+            this.max = max;
+            this.min = min;
+        }
 
-    public void setMin(double min) {
-        this.min = min;
-    }
+        public double getMax() {
+            return max;
+        }
 
-    @Override
-    public String toString() {
-        return "[max=" + max + " min=" + min + "]";
-    }
-}
+        public void setMax(double max) {
+            this.max = max;
+        }
 
+        public double getMin() {
+            return min;
+        }
+
+        public void setMin(double min) {
+            this.min = min;
+        }
+
+        public void setRMS(double rms) {
+            this.rms = rms;
+        }
+
+        public double getRMS() {
+            return rms;
+        }
+
+        @Override
+        public String toString() {
+            return "[max=" + max + " :min=" + min + ":rms=" + rms + "]";
+        }
+    }
 }

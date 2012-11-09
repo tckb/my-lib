@@ -21,8 +21,8 @@ import javax.swing.JPanel;
  * @author tckb
  */
 public class AudWvPanel extends JPanel {
-    private static final Logger mylogger = Logger.getLogger("com.lia.core.audio.wave");
 
+    private static final Logger mylogger = Logger.getLogger("com.tckb.audio.ui");
     private final Block[] blocks;
     private double zlevel;
     private final double adj_factor_1 = 0.03;
@@ -36,9 +36,11 @@ public class AudWvPanel extends JPanel {
     private int originalWidth;
     private boolean zoomIn = false;
     private int currentWidth;
+    private WvConstant params;
 
-    public AudWvPanel(Block[] datab, int width, int height) {
-        this.blocks = datab;
+    public AudWvPanel(Block[] datab, WvConstant wvParams, int width, int height) {
+        blocks = datab;
+        params = wvParams;
         zlevel = 1;
         originalWidth = width;
         zoomWidth = originalWidth;
@@ -64,19 +66,19 @@ public class AudWvPanel extends JPanel {
         }
 
         mylogger.log(Level.INFO, "Curr Zoomlevel:{0} Width:{1} ", new Object[]{zlevel, currentWidth});
-        AudProcessor.calConstants(currentWidth);
+        adjWvParams(currentWidth);
 
         int currPxl = 0;
         double adj = 0.0;
-        int maxPixel = PIXEL_COUNT;
+        int maxPixel = params.PIXEL_COUNT;
 
-        if (SAMPLE_PER_PIXEL < RED_SAMPLE_256) {
-            SAMPLE_PER_PIXEL = RED_SAMPLE_256;
+        if (params.SAMPLE_PER_PIXEL < RED_SAMPLE_256) {
+            params.SAMPLE_PER_PIXEL = RED_SAMPLE_256;
         }
-        RED_PER_PIXEL = round(RED_COUNT, PIXEL_COUNT);
+        params.RED_PER_PIXEL = round(params.RED_COUNT, params.PIXEL_COUNT);
 
 // Adjust the default settings based on the duration
-        if (WvConstant.DUR_SEC >= (5 * 60)) {
+        if (params.DUR_SEC >= (5 * 60)) {
             adj = adj_factor_1;
             showMinMarks = true;
             show30sMarks = true;
@@ -86,7 +88,7 @@ public class AudWvPanel extends JPanel {
             //displaySecMarks((Graphics2D) g);
 
 
-        } else if (WvConstant.DUR_SEC < (5 * 60) && WvConstant.DUR_SEC > (60)) {
+        } else if (params.DUR_SEC < (5 * 60) && params.DUR_SEC > (60)) {
 
 
             adj = adj_factor_2;
@@ -101,7 +103,7 @@ public class AudWvPanel extends JPanel {
             show50msMarks = true;
         }
 
-        mylogger.log(Level.FINE, "SPP={0} RPP={1}", new Object[]{SAMPLE_PER_PIXEL, RED_PER_PIXEL});
+        mylogger.log(Level.FINE, "SPP={0} RPP={1}", new Object[]{params.SAMPLE_PER_PIXEL, params.RED_PER_PIXEL});
 
         displayPixels((Graphics2D) g, currPxl, maxPixel, adj);
         displayMarks((Graphics2D) g, showMinMarks, show30sMarks, show50msMarks);
@@ -143,7 +145,7 @@ public class AudWvPanel extends JPanel {
             if (currRed == redMax) {
 
                 // time to go to next block
-                if (++currBlock >= BLOCK_COUNT) {
+                if (++currBlock >= params.BLOCK_COUNT) {
                     mylogger.fine("-End of Blocks-");
                     break;
                 }
@@ -163,10 +165,10 @@ public class AudWvPanel extends JPanel {
             tmax = Math.max(tmax, blocks[currBlock].get(currRed).getMax());
             currRed++;
             globalRed++;
-            mylogger.log(Level.FINEST, "CR:{0};RPP{1};{2}", new Object[]{globalRed, RED_PER_PIXEL, globalRed % RED_PER_PIXEL});
+            mylogger.log(Level.FINEST, "CR:{0};RPP{1};{2}", new Object[]{globalRed, params.RED_PER_PIXEL, globalRed % params.RED_PER_PIXEL});
 
 
-            if ((globalRed % (RED_PER_PIXEL)) == 0) {
+            if ((globalRed % (params.RED_PER_PIXEL)) == 0) {
 
                 mylogger.log(Level.FINEST, "Plotting...Current pxl: {0} Current red: {1}", new Object[]{currPxl, currRed});
 
@@ -203,13 +205,13 @@ public class AudWvPanel extends JPanel {
 
         int cp = 0;
         int time = 0;
-        mylogger.log(Level.FINE, "Time per pixel:{0}", TIME_PER_PIXEL);
+        mylogger.log(Level.FINE, "Time per pixel:{0}", params.TIME_PER_PIXEL);
         // tpp * pixelcount = total duration
 
 
 
-        while (cp < PIXEL_COUNT) {
-            time = (int) (cp * TIME_PER_PIXEL);
+        while (cp < params.PIXEL_COUNT) {
+            time = (int) (cp * params.TIME_PER_PIXEL);
 
             if (time > 0 && time % 60.f == 0) {
 
@@ -242,13 +244,13 @@ public class AudWvPanel extends JPanel {
 
         int cp = 0;
         int time = 0;
-        mylogger.log(Level.FINE, "Time per pixel:{0}", TIME_PER_PIXEL);
+        mylogger.log(Level.FINE, "Time per pixel:{0}", params.TIME_PER_PIXEL);
         // tpp * pixelcount = total duration
 
 
 
-        while (cp < PIXEL_COUNT) {
-            time = (int) (cp * TIME_PER_PIXEL);
+        while (cp < params.PIXEL_COUNT) {
+            time = (int) (cp * params.TIME_PER_PIXEL);
 
             if (time > 0 && time % (30.f) == 0) {
 
@@ -281,13 +283,13 @@ public class AudWvPanel extends JPanel {
 
         int cp = 0;
         double time = 0;
-        mylogger.log(Level.INFO, "Time per pixel:{0}", TIME_PER_PIXEL);
+        mylogger.log(Level.INFO, "Time per pixel:{0}", params.TIME_PER_PIXEL);
         // tpp * pixelcount = total duration
 
         g.setStroke(dashedStroke);
 
-        while (cp < PIXEL_COUNT) {
-            time = (cp * TIME_PER_PIXEL);
+        while (cp < params.PIXEL_COUNT) {
+            time = (cp * params.TIME_PER_PIXEL);
 
             if ((Math.round(time) > 0 && Math.round(time) % (30.f) == 0) && show30sMark) {
 
@@ -355,5 +357,22 @@ public class AudWvPanel extends JPanel {
 
     private void adjustWidth() {
         zoomWidth = (int) (zoomIn ? (getWidth() * zlevel) : (currentWidth / zlevel));
+    }
+
+    public void adjWvParams(int displayWidth) {
+        mylogger.info("Calculating constants...");
+
+        params.PIXEL_COUNT = displayWidth;
+        params.TIME_PER_PIXEL = params.DUR_SEC / params.PIXEL_COUNT;
+        params.TIME_PER_RED = params.DUR_SEC / WvConstant.RED_SAMPLE_256;  // time per say, 256 samples
+        params.TIME_PER_SAMPLE = params.DUR_SEC / params.ADJ_SAMPLE_COUNT; // use the adjusted value instead of original sample count
+        params.SAMPLE_PER_PIXEL = params.ADJ_SAMPLE_COUNT / params.PIXEL_COUNT;
+
+
+
+        mylogger.log(Level.FINE, "Adjusted Sample count={0}", params.ADJ_SAMPLE_COUNT);
+        mylogger.log(Level.FINER, "tpp:{0}", params.DUR_SEC / params.PIXEL_COUNT);
+
+
     }
 }

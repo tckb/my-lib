@@ -6,6 +6,7 @@ package com.tckb.audio.ui;
 
 import com.tckb.audio.AudProcessor;
 import com.tckb.audio.NonTrivialAudio;
+import com.tckb.audio.NonTrivialAudio.ChannelNotFoundException;
 import com.tckb.audio.part.Block;
 import com.tckb.util.Utility;
 import java.awt.Dimension;
@@ -38,8 +39,8 @@ import javax.swing.text.JTextComponent;
  * @author tckb
  */
 public class AudioUI extends Observable {
-    private static final Logger mylogger = Logger.getLogger("com.lia.ui");
 
+    private static final Logger mylogger = Logger.getLogger("com.tckb.audio.ui");
     private SourceObserver defaultObserver = null;
     private boolean manualSeek = false;
 
@@ -133,7 +134,6 @@ public class AudioUI extends Observable {
         private boolean statusOK;
         private JProgressBar seeker2;
         private NonTrivialAudio audio = null;
-        private Block[] waveData = null;
         private JScrollPane waveformContainer = null;
         private double hres = 0.05;
         private JTextComponent trContainer = null;
@@ -146,14 +146,17 @@ public class AudioUI extends Observable {
         private AudWvPanel audioPanel = null;
         private ArrayList<Double> timeStamps = null;
         private boolean audioPlaying = false;
+        private AudProcessor aProcesor = null;
+        // parameters of audio
+        private Double audLenMS = 0.0;
 
         @Override
-        public void update(Observable o, Object obj) {
+        public void update(Observable o, Object audioFile) {
 
             mylogger.info("Sound source changed, Adjusting the controls");
 
 
-            if (obj instanceof File) {
+            if (audioFile instanceof File) {
                 try {
                     // stop any playing audio 
                     this.stopCurrentPlay();
@@ -161,31 +164,27 @@ public class AudioUI extends Observable {
 
                     //create new instance 
 
-                    File src = (File) obj;
+
                     displayWidth = (int) waveformContainer.getSize().getWidth();
                     displayHeight = (int) waveformContainer.getSize().getHeight();
-                    audio = new NonTrivialAudio(src);
-                    double durationMS = audio.getDurationInMS();
-
-
+                    audio = new NonTrivialAudio((File) audioFile);
+                    audLenMS = audio.getDurationInMS();
+                    aProcesor = AudProcessor.createProcessor(audio, 0);
                     isTranscriptAvailable = false;
 
-                    //System.out.println("displaying wave form");
 
                     //TODO: Develop AudioProcessor.getZoomLevels(audio) and use that here
                     // intially display the complete wave
 
 
-                    waveData = AudProcessor.processAudio(audio);
-                    audioPanel = (AudWvPanel) AudProcessor.getWavePanel(waveData, displayWidth, displayHeight);
+                    audioPanel = (AudWvPanel) aProcesor.getWavePanel(displayWidth, displayHeight);
                     waveformContainer.setViewportView(audioPanel);
 
 
-                    //  zoomWave(true, 1);
                     // Reset the seeker if, defined
-                    resetSeekersMS(durationMS);
+                    resetSeekersMS(audLenMS);
 
-                    mylogger.log(Level.INFO, "Sound Clip duration: {0}", durationMS);
+                    mylogger.log(Level.INFO, "Sound Clip duration: {0}", audLenMS);
 
 
                     if (autoPlay) {
@@ -195,6 +194,8 @@ public class AudioUI extends Observable {
                     }
                     this.statusOK = true;
 
+                } catch (ChannelNotFoundException ex) {
+                    mylogger.log(Level.SEVERE, null, ex);
                 } catch (IOException ex) {
                     mylogger.log(Level.SEVERE, null, ex);
                 } catch (UnsupportedAudioFileException ex) {
@@ -211,7 +212,6 @@ public class AudioUI extends Observable {
 
         private void addUIPlay(JButton aud_play_but) {
             aud_play_but.addActionListener(new ActionListener() {
-
                 @Override
                 public void actionPerformed(ActionEvent ae) {
                     startPlaying();
@@ -224,7 +224,6 @@ public class AudioUI extends Observable {
         private void addUIPause(JButton aud_pause_but) {
 
             aud_pause_but.addActionListener(new ActionListener() {
-
                 @Override
                 public void actionPerformed(ActionEvent ae) {
                     pauseCurrentPlay();
@@ -236,7 +235,6 @@ public class AudioUI extends Observable {
 
         private void addSeeker(JSlider aud_seeker_slid) {
             aud_seeker_slid.addMouseListener(new MouseListener() {
-
                 @Override
                 public void mouseClicked(MouseEvent e) {
                 }
@@ -290,6 +288,7 @@ public class AudioUI extends Observable {
 
         private void stopCurrentPlay() {
 
+
             if (audio != null) {
                 audio.stop();
                 audioPlaying = false;
@@ -306,6 +305,7 @@ public class AudioUI extends Observable {
         }
 
         private void startPlaying() {
+
             audioPlaying = true;
             // play the audio
             audio.start();
@@ -313,7 +313,6 @@ public class AudioUI extends Observable {
 
             // Update seekers and transcript ( if available ) 
             new Thread("seeker-updater") {
-
                 int tsCnt = -1;
                 //TODO: This assumes that the timestamps start from 0.0!
                 double currTS = 0.0;
@@ -455,16 +454,6 @@ public class AudioUI extends Observable {
 
         }
 
-        private void displayWavePanel(Block[] waveData, int w, int h) {
-            mylogger.log(Level.INFO, "Wave size w:{0} h:{1}", new Object[]{w, h});
-            JPanel wPanel = AudProcessor.getWavePanel(waveData, w, h);
-            wPanel.setPreferredSize(new Dimension(w, h));
-            wPanel.setVisible(true);
-            waveformContainer.setViewportView(wPanel);
-
-
-        }
-
         private void attachTrContainer(JTextComponent trContainer) {
             this.trContainer = trContainer;
         }
@@ -511,7 +500,6 @@ public class AudioUI extends Observable {
 
         private void attachTrPlayButton(JButton trans_align_but) {
             trans_align_but.addActionListener(new ActionListener() {
-
                 @Override
                 public void actionPerformed(ActionEvent ae) {
                     startPlaying();

@@ -4,6 +4,7 @@
  */
 package com.tckb.audio;
 
+import com.tckb.borrowed.elan.WAVHeader;
 import java.io.File;
 import java.io.IOException;
 import java.util.logging.Level;
@@ -17,17 +18,19 @@ import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 /**
- * Based on Hack from http://codeidol.com/java/swing/Audio/Play-Non-Trivial-Audio
- * Implementation of javax.sound.sampled.Clip can't handle large audio file 
- * 
+ * Based on Hack from
+ * http://codeidol.com/java/swing/Audio/Play-Non-Trivial-Audio Implementation of
+ * javax.sound.sampled.Clip can't handle large audio file
+ *
  * @author tckb
  */
 public class NonTrivialAudio implements Runnable {
-    private static final Logger mylogger = Logger.getLogger("com.lia.core.audio");
 
+    private static final Logger mylogger = Logger.getLogger("com.tckb.audio");
     private File audSrc;
     private AudioInputStream rawDataStream;
     private SourceDataLine audioLine;
+    private WAVHeader header;
     private int frameSize;
     private byte[] empty34kBuffer = new byte[32 * 1024]; // 32k is arbitrary
     private byte[] empty64kBuffer = new byte[64 * 1024]; // 64k is arbitrary
@@ -48,6 +51,7 @@ public class NonTrivialAudio implements Runnable {
             LineUnavailableException {
         audSrc = f;
         playing = false;
+        header = new WAVHeader(f.getAbsolutePath());
         resetStream();
 
     }
@@ -55,9 +59,7 @@ public class NonTrivialAudio implements Runnable {
     @Override
     public void run() {
         totalBytesread = 0;
-//        int cnt = 0;
-//        long skipbytes = 0;
-        // lock it!
+
         synchronized (this) {
             mylogger.fine("Play locked!");
             int readPoint = 0;
@@ -67,16 +69,9 @@ public class NonTrivialAudio implements Runnable {
                 mylogger.info("--Start of Stream--");
                 mylogger.log(Level.INFO, "Bytes available: {0}", rawDataStream.available());
                 while (notYetEOF) {
-//                    cnt++;
                     if (playing) {
 
-// 
-// empty34kBuffer.length - bytes = readpoint
-//                        if (skipbytes > 0) {
-//                            readPoint = (int) (empty34kBuffer.length - skipbytes);
-//                            skipbytes = 0;
-//                        }
-// -------------------------------------------
+
 
 
                         bytesRead = rawDataStream.read(empty34kBuffer, readPoint, empty34kBuffer.length - readPoint);
@@ -107,12 +102,12 @@ public class NonTrivialAudio implements Runnable {
                         audioLine.write(empty34kBuffer, readPoint, bytesRead - leftover); // this one here causes sound to produce
 
                         // save the leftover bytes
-                        System.arraycopy(empty34kBuffer, bytesRead,empty34kBuffer, 0,leftover);
+                        System.arraycopy(empty34kBuffer, bytesRead, empty34kBuffer, 0, leftover);
 
                         readPoint = leftover;
 
-                        
-                
+
+
                     } //if playing
                     else {
                         // if not playing                   
@@ -120,6 +115,8 @@ public class NonTrivialAudio implements Runnable {
                         try {
                             Thread.sleep(10);
                         } catch (InterruptedException ie) {
+                            mylogger.log(Level.SEVERE, "Play interrupted:{0}", ie);
+
                         }
                     }
 
@@ -171,7 +168,7 @@ public class NonTrivialAudio implements Runnable {
         } else {
             // this means that its a fresh start
             // stream is already initialised!  
-           
+
             startThread();      // so, start a new instance
             mylogger.fine("Thread new");
 
@@ -424,7 +421,7 @@ public class NonTrivialAudio implements Runnable {
                         audSrc.getName() + " is not PCM audio");
             }
             mylogger.fine("Audio format:PCM");
-           
+
             frameSize = format.getFrameSize();
             notYetEOF = true;
 
@@ -487,21 +484,33 @@ public class NonTrivialAudio implements Runnable {
         }
     }
 
-    public int[] getAudioData(int CurrChannel) {
+    /**
+     * Channel numbering starts with 0 ... getNoChannels()-1
+     *
+     * @param CurrChannel
+     * @return
+     */
+    public int[] getAudioData(int CurrChannel) throws ChannelNotFoundException {
+        int[] chData = null;
         AudioInputStream myStream = null;
         try {
             myStream = AudioSystem.getAudioInputStream(audSrc);
             try {
                 int sampleIndex = 0;
-                int numChannels = myStream.getFormat().getChannels(); // length of stream in-terms of frames
+                int numChannels = myStream.getFormat().getChannels();
+
+
+                if (CurrChannel >= numChannels) {
+                    throw new ChannelNotFoundException();
+                }
+
                 int frameLength = (int) myStream.getFrameLength();  // length of stream in-terms of frames
 
-                int frameSize = (int) myStream.getFormat().getFrameSize(); // 2 , 4 ... bytes per frame
+                int frmSze = (int) myStream.getFormat().getFrameSize(); // 2 , 4 ... bytes per frame
 
-                int sampleRate = getSampleRate();
 
                 int[][] toReturn = new int[numChannels][frameLength];
-                byte[] bytes = new byte[frameLength * frameSize];
+                byte[] bytes = new byte[frameLength * frmSze];
 
                 myStream.read(bytes);
 
@@ -522,7 +531,7 @@ public class NonTrivialAudio implements Runnable {
             } catch (IOException ex) {
                 Logger.getLogger(NonTrivialAudio.class.getName()).log(Level.SEVERE, null, ex);
             }
-           
+
         } catch (UnsupportedAudioFileException ex) {
             Logger.getLogger(NonTrivialAudio.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
@@ -534,7 +543,7 @@ public class NonTrivialAudio implements Runnable {
                 Logger.getLogger(NonTrivialAudio.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-         return null;
+        return null;
     }
 
     private int getSixteenBitSample(int high, int low) {
@@ -543,10 +552,40 @@ public class NonTrivialAudio implements Runnable {
 //        } else {
 //            return low + high;
 //        }
- return (high << 8) + (low & 0x00ff);
+        return (high << 8) + (low & 0x00ff);
+    }
+
+    public int getNoChannels() {
+        return audioLine.getFormat().getChannels();
     }
 
     public int getSampleRate() {
         return (int) rawDataStream.getFormat().getSampleRate();
     }
+
+    public WAVHeader getHeader() {
+        return header;
+    }
+
+    @Override
+    public String toString() {
+        return header.toString();
+
+    }
+
+    public class ChannelNotFoundException extends Exception {
+
+        @Override
+        public String getMessage() {
+            return "Invalid Channel specified!";
+        }
+    }
 }
+// -- DEAD CODE --
+// 
+// empty34kBuffer.length - bytes = readpoint
+//                        if (skipbytes > 0) {
+//                            readPoint = (int) (empty34kBuffer.length - skipbytes);
+//                            skipbytes = 0;
+//                        }
+// -------------------------------------------
