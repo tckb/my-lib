@@ -4,9 +4,8 @@
  */
 package com.tckb.audio.ui;
 
-import com.tckb.audio.AudProcessor;
 import com.tckb.audio.part.Block;
-import static com.tckb.audio.ui.WvConstant.*;
+import com.tckb.borrowed.jfreechart.ChartColor;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
@@ -72,8 +71,8 @@ public class AudWvPanel extends JPanel {
         double adj = 0.0;
         int maxPixel = params.PIXEL_COUNT;
 
-        if (params.SAMPLE_PER_PIXEL < RED_SAMPLE_256) {
-            params.SAMPLE_PER_PIXEL = RED_SAMPLE_256;
+        if (params.SAMPLE_PER_PIXEL < WvConstant.RED_SAMPLE_256) {
+            params.SAMPLE_PER_PIXEL = WvConstant.RED_SAMPLE_256;
         }
         params.RED_PER_PIXEL = round(params.RED_COUNT, params.PIXEL_COUNT);
 
@@ -137,8 +136,8 @@ public class AudWvPanel extends JPanel {
         // adjusting factor
 
 
-        //  g.setColor(ChartColor.LIGHT_BLUE);
-        g.setColor(Color.BLUE);
+         g.setColor(ChartColor.LIGHT_BLUE);
+//        g.setColor(Color.BLUE);
 
         while (currPxl < maxPixel) {
 
@@ -165,7 +164,7 @@ public class AudWvPanel extends JPanel {
             tmax = Math.max(tmax, blocks[currBlock].get(currRed).getMax());
             currRed++;
             globalRed++;
-            mylogger.log(Level.FINEST, "CR:{0};RPP{1};{2}", new Object[]{globalRed, params.RED_PER_PIXEL, globalRed % params.RED_PER_PIXEL});
+//            mylogger.log(Level.FINEST, "CR:{0};RPP{1};{2}", new Object[]{globalRed, params.RED_PER_PIXEL, globalRed % params.RED_PER_PIXEL});
 
 
             if ((globalRed % (params.RED_PER_PIXEL)) == 0) {
@@ -180,10 +179,16 @@ public class AudWvPanel extends JPanel {
 //                    -         X(tmax)
 //              (+h)  -        
 
+                int tmin_adj = interpolate(tmin, -1, 1, 0, getHeight() );
+                int tmax_adj = interpolate(tmax, -1, 1, 0, getHeight() );
+
+
 
                 // System.out.println(tmin+":"+tmax);
-                g.draw(new Line2D.Double(currPxl, ((tmin * yAdj) + h / 2), currPxl, ((tmax * yAdj) + h / 2)));
-                //   g.draw(new Line2D.Double(currPxl, tmin, currPxl, tmax));
+//                 g.draw(new Line2D.Double(currPxl, ((tmin * yAdj) + h / 2), currPxl, ((tmax * yAdj) + h / 2)));
+//                   g.draw(new Line2D.Double(currPxl, tmin, currPxl, tmax));
+                g.draw(new Line2D.Double(currPxl, tmin_adj, currPxl, tmax_adj));
+
 
                 tmin = Integer.MAX_VALUE;
                 tmax = Integer.MIN_VALUE;
@@ -374,5 +379,21 @@ public class AudWvPanel extends JPanel {
         mylogger.log(Level.FINER, "tpp:{0}", params.DUR_SEC / params.PIXEL_COUNT);
 
 
+    }
+
+    public int interpolate(double oldValue, double oldRangeMin, double oldRangeMax, double newRangeMin, double newRangeMax) {
+//        System.out.println("old range: " + oldRangeMin + ":" + oldRangeMax);
+//        System.out.println("new range: " + newRangeMin + ":" + newRangeMax);
+
+
+
+        int scale = (int) Math.round((newRangeMax - newRangeMin) / (oldRangeMax - oldRangeMin));
+
+//        System.out.println("scale: " + scale);
+
+        int newValue = (int) Math.round(newRangeMin + (oldValue - oldRangeMin) * scale);
+//        System.out.println("oldvalue: " + oldValue + " new value: " + newValue);
+
+        return newValue;
     }
 }

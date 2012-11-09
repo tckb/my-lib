@@ -491,7 +491,6 @@ public class NonTrivialAudio implements Runnable {
      * @return
      */
     public int[] getAudioData(int CurrChannel) throws ChannelNotFoundException {
-        int[] chData = null;
         AudioInputStream myStream = null;
         try {
             myStream = AudioSystem.getAudioInputStream(audSrc);

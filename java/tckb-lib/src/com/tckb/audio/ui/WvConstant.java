@@ -15,7 +15,7 @@ public final class WvConstant {
     public static final int BLOCK_32K_SAMPLE = 32 * 1024; // 32k samples[2 bytes]-per-block -> 64KB-per-block
     public static final int RED_SAMPLE_256 = 256;         // 256 samples[2 bytes]-per-reduction -> 512B-per-reduction
     public static final int SAMPLE_SIZE = 16;             // 2 bytes-per-sample
-    //  Calculated by calling AudioProcessor.calConstants()
+    //  params adjusted by WvPanel
     public int PIXEL_COUNT = -1;
     public int SAMPLE_COUNT = -1;
     public int ADJ_SAMPLE_COUNT = -1;

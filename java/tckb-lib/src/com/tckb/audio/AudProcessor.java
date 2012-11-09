@@ -14,6 +14,10 @@ import java.util.Collections;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JPanel;
+import javax.vecmath.Vector2d;
+import org.ejml.data.DenseMatrix64F;
+import org.ejml.ops.CommonOps;
+import org.ejml.ops.NormOps;
 
 /**
  *
@@ -33,9 +37,9 @@ public class AudProcessor {
 
     private AudProcessor(NonTrivialAudio audio, int ch) throws ChannelNotFoundException {
         this.audio = audio;
-        cachedData = processAudio();
         wvParams = new WvConstant();
         channel = ch;
+        cachedData = processAudio();
 
     }
 
@@ -50,6 +54,17 @@ public class AudProcessor {
 
         // Independent Variables: Constants
         int[] origDataSamples = audio.getAudioData(channel); // get the first channel
+
+        DenseMatrix64F audioData = new DenseMatrix64F(1, origDataSamples.length);
+        for (int j = 0; j < origDataSamples.length; j++) {
+            audioData.set(0, j, (double) origDataSamples[j]);
+        }
+
+        CommonOps.divide(CommonOps.elementMax(audioData),audioData);
+
+        double[] normAudData = audioData.getData();
+
+
         wvParams.SAMPLE_COUNT = origDataSamples.length;
         calWvParams();
 
@@ -69,7 +84,9 @@ public class AudProcessor {
             for (int k = 0; k < sampleCount; k += WvConstant.RED_SAMPLE_256) {
                 //     mylogger.info(sampleCount%RED_SAMPLE_256);
 
-                cRed = computeReduction(origDataSamples, s + k, WvConstant.RED_SAMPLE_256);
+//                cRed = computeReduction(normAudData, s + k, WvConstant.RED_SAMPLE_256);
+                cRed = computeReduction(audioData, s + k, WvConstant.RED_SAMPLE_256);
+
                 if (!emptyBlock.put(cRed)) {
                     mylogger.warning("Cann't add anymore!");
                     break;
@@ -87,7 +104,8 @@ public class AudProcessor {
 
     }
 
-    private Reduction computeReduction(int[] origDataSamples, int pos, int rSize) {
+    private Reduction computeReduction(double[] origDataSamples, int pos, int rSize) {
+
 
 
         ArrayList<Double> data = new ArrayList<Double>();
@@ -106,6 +124,26 @@ public class AudProcessor {
         double min = Collections.min(data);
 
 
+
+        return new Reduction(min, max);
+
+    }
+
+    private Reduction computeReduction(DenseMatrix64F rowData, int colS, int size) {
+
+//        System.out.println(" colS: "+colS+"cols+size "+ (colS+size) +" 0 1");
+        DenseMatrix64F extract = CommonOps.extract(rowData, 0, 1, colS, colS + size);
+
+//        NormOps.normalizeF(extract);
+
+
+        Double max = CommonOps.elementMax(extract);
+        Double min = CommonOps.elementMin(extract);
+
+//        Vector2d normRed = new Vector2d(min, max);
+//        normRed.normalize();
+//        // System.out.println(normRed.x+":"+normRed.y);
+//        return new Reduction(normRed.x, normRed.y);
 
         return new Reduction(min, max);
 

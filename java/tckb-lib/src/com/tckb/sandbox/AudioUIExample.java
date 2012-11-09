@@ -26,7 +26,7 @@ public class AudioUIExample extends javax.swing.JFrame {
         myAudio.setUIWvContainer(myPanel);
         myAudio.setUIPlay(playAudio);
         myAudio.setUIPause(stopAudio);
-        myAudio.setUISeeker(audSlider);
+//        myAudio.setUISeeker(audSlider);
 
         
     }
@@ -47,6 +47,7 @@ public class AudioUIExample extends javax.swing.JFrame {
         audSlider = new javax.swing.JProgressBar();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setLocationByPlatform(true);
 
         playAudio.setText("Play");
 
@@ -59,6 +60,8 @@ public class AudioUIExample extends javax.swing.JFrame {
             }
         });
 
+        myPanel.setDoubleBuffered(true);
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -70,19 +73,17 @@ public class AudioUIExample extends javax.swing.JFrame {
                         .add(playAudio)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(stopAudio)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 349, Short.MAX_VALUE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 388, Short.MAX_VALUE)
                         .add(filechooserBut))
-                    .add(layout.createSequentialGroup()
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                            .add(audSlider, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .add(myPanel))
-                        .addContainerGap())))
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, audSlider, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, myPanel))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(myPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 306, Short.MAX_VALUE)
+                .add(myPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 194, Short.MAX_VALUE)
                 .add(18, 18, 18)
                 .add(audSlider, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -90,12 +91,10 @@ public class AudioUIExample extends javax.swing.JFrame {
                         .add(12, 12, 12)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                             .add(playAudio)
-                            .add(stopAudio))
-                        .add(15, 15, 15))
+                            .add(stopAudio)))
                     .add(layout.createSequentialGroup()
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .add(filechooserBut)
-                        .addContainerGap())))
+                        .add(39, 39, 39)
+                        .add(filechooserBut))))
         );
 
         pack();
