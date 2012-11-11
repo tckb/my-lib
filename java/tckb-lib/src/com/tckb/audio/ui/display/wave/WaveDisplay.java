@@ -1,11 +1,9 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-package com.tckb.audio.ui;
+package com.tckb.audio.ui.display.wave;
 
 import com.tckb.audio.part.Block;
 import com.tckb.audio.part.Block.Reduction;
+import com.tckb.audio.part.Label;
+import com.tckb.audio.ui.display.AudioDisplay;
 import com.tckb.borrowed.jfreechart.ChartColor;
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -18,7 +16,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.JPanel;
 import org.ejml.ops.CommonOps;
 import org.ejml.simple.SimpleMatrix;
 
@@ -26,7 +23,7 @@ import org.ejml.simple.SimpleMatrix;
  *
  * @author tckb
  */
-public class AudWvPanel extends JPanel {
+public class WaveDisplay extends AudioDisplay {
 
     private static final Logger mylogger = Logger.getLogger("com.tckb.audio.ui");
     private final int h = 0;
@@ -48,18 +45,22 @@ public class AudWvPanel extends JPanel {
 
     }
 
+    @Override
     public double getMAX_ZOOM() {
         return MAX_ZOOM;
     }
 
+    @Override
     public double getMIN_ZOOM() {
         return MIN_ZOOM;
     }
 
+    @Override
     public final void setMIN_ZOOM(double MIN_ZOOM) {
         this.MIN_ZOOM = MIN_ZOOM;
     }
 
+    @Override
     public void zoomIn() {
         int step = getZoomStep(); // sec
         // check if zoomIn available
@@ -74,6 +75,7 @@ public class AudWvPanel extends JPanel {
         }
     }
 
+    @Override
     public void zoomOut() {
 
         int step = getZoomStep();
@@ -90,11 +92,13 @@ public class AudWvPanel extends JPanel {
 
     }
 
+    @Override
     public final void setZoomStep(int level) {
         this.zoomStep = level;
 
     }
 
+    @Override
     public int getZoomStep() {
         return zoomStep;
     }
@@ -102,6 +106,7 @@ public class AudWvPanel extends JPanel {
     /*
      *  In sec's
      */
+    @Override
     public final void setZoomLevel(double seconds) {
 //        if (windowSize_sec <= getMAX_ZOOM()) {
 
@@ -114,6 +119,7 @@ public class AudWvPanel extends JPanel {
         repaint();
     }
 
+    @Override
     public double getZoomLevel() {
         return windowSize_sec;
     }
@@ -123,11 +129,11 @@ public class AudWvPanel extends JPanel {
      * @param datab
      * @param wvParams
      */
-    public AudWvPanel(Block[] datab, WvConstant wvParams) {
+    public WaveDisplay(Block[] datab, WvConstant wvParams) {
         params = wvParams;
 
         setDoubleBuffered(true);
-        setBackground(ChartColor.DARK_GRAY);
+        setBackground(ChartColor.LIGHT_GRAY);
         setZoomStep(1);
         setMIN_ZOOM(params.DUR_SEC);
         setMAX_ZOOM(1);
@@ -145,15 +151,16 @@ public class AudWvPanel extends JPanel {
 
     }
 
+    @Override
     public int getCrosshairLen() {
         return crosshairLen;
     }
 
+    @Override
     public void setCrosshairLen(int crosshairLen) {
         this.crosshairLen = crosshairLen;
     }
 
-    @Override
     public void paintComponent(final Graphics g) {
         super.paintComponent(g);
 
@@ -228,22 +235,39 @@ public class AudWvPanel extends JPanel {
 
     private void displayPixels(Graphics2D g, int currPxl, int maxPixel) {
         g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+        g.setRenderingHint(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_ENABLE);
 
-        g.drawString(Double.toString(adjustDoubleDecimal(winStart_sample / params.SRATE)) + " sec", 1, 10);
-        g.drawString(Double.toString(adjustDoubleDecimal(winEnd_sample / params.SRATE)) + " sec", getWidth() - 50, 10);
-        g.drawString("Duration: " + Double.toString(params.DUR_SEC) + " sec", getWidth() / 2, getHeight() - 8);
 
 
         // Stroke definitions
         BasicStroke waveStroke = new BasicStroke(0.5f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND);
         BasicStroke currPointerStroke = new BasicStroke(3f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND);
+
+
+
+
+        g.drawString(Double.toString(adjustDoubleDecimal(winStart_sample / params.SRATE)) + " sec", 1, 10);
+        g.setStroke(waveStroke);
+        g.draw(new Line2D.Double(1, 14, 1, 18));
+
+
+
+
+        g.drawString(Double.toString(adjustDoubleDecimal(winEnd_sample / params.SRATE)) + " sec", getWidth() - 50, 10);
+        g.draw(new Line2D.Double(getWidth() - 2, 14, getWidth() - 2, 18));
+
+        g.drawString("Duration: " + Double.toString(adjustDoubleDecimal(params.DUR_SEC)) + " sec", getWidth() / 2, getHeight() - 10);
+
+
+
+
         int winStart_Red = redNumber(winStart_sample);
         cachRed = new ArrayList< Reduction>();
         int currPlay_Red = 0;
-        int mid = interpolate(0, -1, 1, 0, getHeight());
+        int mid = interpolate(0, -1, 1, 5, getHeight() - 5);
 
 
-        List<Reduction> currWinRedList = params.rList.subList(redNumber(winStart_sample), redNumber(winEnd_sample));
+        List<Reduction> currWinRedList = params.wavData.subList(redNumber(winStart_sample), redNumber(winEnd_sample));
 
 
         while (currPxl < maxPixel) {
@@ -275,8 +299,8 @@ public class AudWvPanel extends JPanel {
 
 
             // interpolate tmin & tmax to the current width and height
-            int tmin_adj = interpolate(tmin, -1, 1, 0, getHeight());
-            int tmax_adj = interpolate(tmax, -1, 1, 0, getHeight());
+            int tmin_adj = interpolate(tmin, -1, 1, 5, getHeight() - 5);
+            int tmax_adj = interpolate(tmax, -1, 1, 5, getHeight() - 5);
 
 
 
@@ -285,16 +309,16 @@ public class AudWvPanel extends JPanel {
 
             // Save the adjested reductions
             cachRed.add(new Reduction(tmax_adj, tmin_adj));
-            g.setColor(ChartColor.VERY_DARK_GREEN);
-
-            g.draw(new Line2D.Double(currPxl, tmin_adj, currPxl, tmin_adj));
-            g.draw(new Line2D.Double(currPxl, tmax_adj, currPxl, tmax_adj));
+//            g.setColor(ChartColor.VERY_DARK_GREEN);
+//
+//            g.draw(new Line2D.Double(currPxl, tmin_adj, currPxl, tmin_adj));
+//            g.draw(new Line2D.Double(currPxl, tmax_adj, currPxl, tmax_adj));
 
 
 
 
             // draw current pixel
-            g.setColor(ChartColor.blue);
+            g.setColor(ChartColor.BLUE);
             g.draw(new Line2D.Double(currPxl, tmin_adj, currPxl, tmax_adj));
 
 
@@ -359,15 +383,17 @@ public class AudWvPanel extends JPanel {
                 double max = cachRed.get((p + i)).getMax();
                 double min = cachRed.get((p + i)).getMin();
 
+                // crosshair-length 
                 g.setStroke(waveStroke);
-
                 g.setColor(ChartColor.VERY_DARK_BLUE);
-
                 g.draw(new Line2D.Double(p + i, min, p + i, max));
+
+                // crosshair-top
                 g.setColor(ChartColor.VERY_LIGHT_BLUE);
                 g.draw(new Line2D.Double(p + i, max - 0.2, p + i, max + 0.2));
                 g.draw(new Line2D.Double(p + i, min - 0.2, p + i, min + 0.2));
 
+                // crosshair time
                 if ((p + i) == currPlay_Red) {
                     g.setStroke(currPointerStroke);
 
@@ -584,7 +610,8 @@ public class AudWvPanel extends JPanel {
         return CommonOps.elementMin(list.getMatrix());
     }
 
-    public void updateWvPosition(double pos_sec) {
+    @Override
+    public void updateCrosshairPosition(double pos_sec) {
 
         double pos_sample = pos_sec * params.SRATE;
 
@@ -595,9 +622,9 @@ public class AudWvPanel extends JPanel {
 
         } else {
             double samples = 0;
-            if ((windowSize_sample) > (params.ADJ_SAMPLE_COUNT - winEnd_sample)) {
-                if (params.ADJ_SAMPLE_COUNT - winEnd_sample > 0) {
-                    windowSize_sample = params.ADJ_SAMPLE_COUNT - winEnd_sample;
+            if ((windowSize_sample) > (params.SAMPLE_COUNT - winEnd_sample)) {
+                if (params.SAMPLE_COUNT - winEnd_sample > 0) {
+                    windowSize_sample = params.SAMPLE_COUNT - winEnd_sample;
                 } else {
                     samples = 0;
                 }
@@ -628,13 +655,15 @@ public class AudWvPanel extends JPanel {
         return ((int) Math.floor(sample / 256));
     }
 
+    @Override
     public void resetZoom() {
 
         this.setZoomLevel(getMIN_ZOOM());
 
     }
 
-    public void setStringAtSec(String text, double pos_sec) {
+    @Override
+    public void setLabelAt(String text, double pos_sec) {
         double pos_sample = pos_sec * params.SRATE;
 
         labels.add(new Label(text, pos_sample));
@@ -642,7 +671,19 @@ public class AudWvPanel extends JPanel {
 
     }
 
-    public void refreshPanel() {
+    @Override
+    public String deleteLabelAt(double pos_sec) {
+        return null;
+
+    }
+
+    @Override
+    public int clearAllLabels() {
+        return 0;
+    }
+
+    @Override
+    public void refreshDisplay() {
         repaint();
     }
 
@@ -655,136 +696,4 @@ public class AudWvPanel extends JPanel {
         return Double.valueOf(newFormat.format(value));
 
     }
-
-    public static class Label {
-
-        private String text = "";
-        private double sample = 0;
-        private int pixel = 0;
-
-        public boolean isIsVisible() {
-            return isVisible;
-        }
-
-        public void setIsVisible(boolean isVisible) {
-            this.isVisible = isVisible;
-        }
-        private boolean isVisible = false;
-
-        public Label(String text, double sample) {
-            this.text = text;
-            this.sample = sample;
-        }
-
-        public String getText() {
-            return text;
-        }
-
-        public void setText(String text) {
-            this.text = text;
-        }
-
-        public double getSample() {
-            return sample;
-        }
-
-        public void setSample(double sample) {
-            this.sample = sample;
-        }
-
-        public int getPixel() {
-            return pixel;
-        }
-
-        public void setPixel(int pixel) {
-            this.pixel = pixel;
-        }
-    }
 }
-//-- DEAD CODE --
-//            if (pointerSaveCnt >= (pointerSave.crosshairLen / 2)) {
-//                pointerSaveCnt = 0;
-//            } else {
-//                pointerSave[pointerSaveCnt][0] = tmin_adj;
-//                pointerSave[pointerSaveCnt][1] = tmax_adj;
-//                
-//                pointerSaveCnt ++;
-//            }
-//    private void displayPixels(Graphics2D g, int currPxl, int maxPixel, double yAdj) {
-//        // Since we are slicing the file into chucks of 
-//        // Reductions, SPP = RED_SAMPLE_256 =  256, in this case
-//
-//        int currBlock = -1;
-//        int currRed = -1;
-//        int globalRed = -1;
-//        int redMax = -1;
-//        double tmin = Integer.MAX_VALUE;
-//        double tmax = Integer.MIN_VALUE;
-//        // adjusting factor
-//
-//
-//         g.setColor(ChartColor.LIGHT_BLUE);
-////        g.setColor(Color.BLUE);
-//
-//        while (currPxl < maxPixel) {
-//
-//            if (currRed == redMax) {
-//
-//                // pos_sample to go to next block
-//                if (++currBlock >= params.BLOCK_COUNT) {
-//                    mylogger.fine("-End of Blocks-");
-//                    break;
-//                }
-//                currRed = 0;
-//                redMax = blocks[currBlock].redCount();
-//                mylogger.log(Level.FINEST, "Current block={0} Current pixel={1} Current max red count={2}", new Object[]{currBlock, currPxl, redMax});
-//
-//            }
-//
-//            if (blocks[currBlock].get(currRed) == null) {
-//                mylogger.log(Level.SEVERE, " Something is wrong!  block red is null, block#{0} currentRed= {1} red max: {2}", new Object[]{currBlock, currRed, redMax});
-//                break;
-//            }
-//
-//            mylogger.log(Level.FINE, "Current block:{0}", currBlock);
-//            tmin = Math.min(tmin, blocks[currBlock].get(currRed).getMin());
-//            tmax = Math.max(tmax, blocks[currBlock].get(currRed).getMax());
-//            currRed++;
-//            globalRed++;
-////            mylogger.log(Level.FINEST, "CR:{0};RPP{1};{2}", new Object[]{globalRed, params.RED_PER_PIXEL, globalRed % params.RED_PER_PIXEL});
-//
-//
-//            if ((globalRed % (params.RED_PER_PIXEL)) == 0) {
-//
-//                mylogger.log(Level.FINEST, "Plotting...Current pxl: {0} Current red: {1}", new Object[]{currPxl, currRed});
-//
-//// draw a horizontal line between the min, max pair
-////              (-h)  - 
-////                    -         X(tmin) 
-////              (h/2) - --------+---------------
-////                    -          (currPxl)
-////                    -         X(tmax)
-////              (+h)  -        
-//
-//                int tmin_adj = interpolate(tmin, -1, 1, 0, getHeight() );
-//                int tmax_adj = interpolate(tmax, -1, 1, 0, getHeight() );
-//
-//
-//
-//                // System.out.println(tmin+":"+tmax);
-////                 g.draw(new Line2D.Double(currPxl, ((tmin * yAdj) + h / 2), currPxl, ((tmax * yAdj) + h / 2)));
-////                   g.draw(new Line2D.Double(currPxl, tmin, currPxl, tmax));
-//                g.draw(new Line2D.Double(currPxl, tmin_adj, currPxl, tmax_adj));
-//
-//
-//                tmin = Integer.MAX_VALUE;
-//                tmax = Integer.MIN_VALUE;
-//                currPxl++;
-//
-//            }
-//
-//        }
-//
-//    }
-// Marks 'min' on the wavepanel
-

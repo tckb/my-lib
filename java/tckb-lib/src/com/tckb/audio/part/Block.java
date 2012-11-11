@@ -4,7 +4,7 @@
  */
 package com.tckb.audio.part;
 
-import com.tckb.audio.ui.WvConstant;
+import com.tckb.audio.ui.display.wave.WvConstant;
 
 /**
  *

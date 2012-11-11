@@ -5,8 +5,11 @@
 package com.tckb.sandbox;
 
 import com.tckb.audio.ui.AudioUI;
+import com.tckb.audio.ui.display.AudioDisplay;
 import com.tckb.util.Utility;
 import java.io.File;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -180,24 +183,23 @@ public class AudioUIExample extends javax.swing.JFrame {
     private void filechooserButActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_filechooserButActionPerformed
         audFile = Utility.getFileFromUI(myPanel);
         myAudio.setAudioFile(audFile);
-        myAudio.setZoomLevel(3);
-
+        myAudio.getDisplay(AudioDisplay.TYPE.WAVEFORM).setZoomLevel(3);;
     }//GEN-LAST:event_filechooserButActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        myAudio.setZoomStep(Integer.parseInt(zoomStepUI.getText()));
-        myAudio.zoomIn();
+        myAudio.getDisplay(AudioDisplay.TYPE.WAVEFORM).setZoomStep(Integer.parseInt(zoomStepUI.getText()));
+        myAudio.getDisplay(AudioDisplay.TYPE.WAVEFORM).zoomIn();
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        myAudio.setZoomStep(Integer.parseInt(zoomStepUI.getText()));
+        myAudio.getDisplay(AudioDisplay.TYPE.WAVEFORM).setZoomStep(Integer.parseInt(zoomStepUI.getText()));
 
 
-        myAudio.zoomOut();
+        myAudio.getDisplay(AudioDisplay.TYPE.WAVEFORM).zoomOut();
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-        myAudio.resetZoom();
+        myAudio.getDisplay(AudioDisplay.TYPE.WAVEFORM).resetZoom();
     }//GEN-LAST:event_jButton3ActionPerformed
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
@@ -209,12 +211,12 @@ public class AudioUIExample extends javax.swing.JFrame {
 //            System.out.println(words[l] + ":" + words[l + 1]);
             String label = words[l + 1];
             Double time = Double.parseDouble(words[l]);
-            myAudio.setLabel(label, time);
+            myAudio.getDisplay(AudioDisplay.TYPE.WAVEFORM).setLabelAt(label, time);
             l += 2;
         }
 
 
-        myAudio.refreshWvPanel();
+        myAudio.getDisplay(AudioDisplay.TYPE.WAVEFORM).refreshDisplay();
 
     }//GEN-LAST:event_jButton4ActionPerformed
 
@@ -248,6 +250,9 @@ public class AudioUIExample extends javax.swing.JFrame {
             java.util.logging.Logger.getLogger(AudioUIExample.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
+
+        Logger.getLogger("com.tckb").setLevel(Level.SEVERE);
+
 
         /*
          * Create and display the form

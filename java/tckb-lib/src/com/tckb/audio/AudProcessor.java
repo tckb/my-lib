@@ -7,13 +7,13 @@ package com.tckb.audio;
 import com.tckb.audio.NonTrivialAudio.ChannelNotFoundException;
 import com.tckb.audio.part.Block;
 import com.tckb.audio.part.Block.Reduction;
-import com.tckb.audio.ui.AudWvPanel;
-import com.tckb.audio.ui.WvConstant;
+import com.tckb.audio.ui.display.AudioDisplay;
+import com.tckb.audio.ui.display.wave.WaveDisplay;
+import com.tckb.audio.ui.display.wave.WvConstant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.JPanel;
 import org.ejml.data.DenseMatrix64F;
 import org.ejml.ops.CommonOps;
 
@@ -88,7 +88,7 @@ public class AudProcessor {
 
 //                cRed = computeReduction(normAudData, s + k, WvConstant.RED_SAMPLE_256);
                 cRed = computeReduction(audioData, s + k, WvConstant.RED_SAMPLE_256);
-                wvParams.rList.add(cRed);
+                wvParams.wavData.add(cRed);
 //
 //                if (!emptyBlock.put(cRed)) {
 //                    mylogger.warning("Cann't add anymore!");
@@ -145,7 +145,7 @@ public class AudProcessor {
         fullBlocks = wvParams.SAMPLE_COUNT / WvConstant.BLOCK_16K_SAMPLE;
         wvParams.BLOCK_COUNT = (lastBlockSampleCount != 0) ? (fullBlocks + 1) : fullBlocks;
         wvParams.ADJ_SAMPLE_COUNT = (fullBlocks * WvConstant.BLOCK_16K_SAMPLE) + lastBlockRedCount * WvConstant.RED_SAMPLE_256; // adjusting the sample count
-        wvParams.DUR_MS = audio.getDurationInMS(); 
+        wvParams.DUR_MS = audio.getDurationInMS();
         wvParams.DUR_SEC = audio.getDurationInSeconds();
         wvParams.RED_COUNT = fullBlocks * (WvConstant.BLOCK_16K_SAMPLE / WvConstant.RED_SAMPLE_256) + lastBlockRedCount;
 
@@ -160,11 +160,9 @@ public class AudProcessor {
     }
 
     //TODO: Fix this!
-    public JPanel getWavePanel(int initialW, int initialH) {
-        AudWvPanel wavePanel = new AudWvPanel(cachedData, wvParams);
+    public AudioDisplay getWavePanel() {
+        WaveDisplay wavePanel = new WaveDisplay(cachedData, wvParams);
         wavePanel.setZoomLevel(wavePanel.getMIN_ZOOM());
-
-
         return wavePanel;
     }
 }

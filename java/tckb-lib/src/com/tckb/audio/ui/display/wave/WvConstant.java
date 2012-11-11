@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.tckb.audio.ui;
+package com.tckb.audio.ui.display.wave;
 
 import com.tckb.audio.part.Block.Reduction;
 import java.util.ArrayList;
@@ -31,6 +31,6 @@ public final class WvConstant {
     public double TIME_PER_RED = -1.0;
     public double TIME_PER_SAMPLE = -1.0;
     public double SRATE = 0;
-    public ArrayList<Reduction> rList = new ArrayList<Reduction>();
+    public ArrayList<Reduction> wavData = new ArrayList<Reduction>();
     public double DUR_MS=-1;;
 }
