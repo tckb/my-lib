@@ -4,6 +4,9 @@
  */
 package com.tckb.audio.ui;
 
+import com.tckb.audio.part.Block.Reduction;
+import java.util.ArrayList;
+
 /**
  *
  * @author tckb
@@ -27,4 +30,7 @@ public final class WvConstant {
     public double TIME_PER_PIXEL = -1.0;
     public double TIME_PER_RED = -1.0;
     public double TIME_PER_SAMPLE = -1.0;
+    public double SRATE = 0;
+    public ArrayList<Reduction> rList = new ArrayList<Reduction>();
+    public double DUR_MS=-1;;
 }

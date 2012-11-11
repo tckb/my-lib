@@ -6,7 +6,11 @@ package com.tckb.audio;
 
 import com.tckb.borrowed.elan.WAVHeader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.IntBuffer;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.sound.sampled.AudioFormat;
@@ -490,6 +494,71 @@ public class NonTrivialAudio implements Runnable {
      * @param CurrChannel
      * @return
      */
+    public int[] getAudioData_fast(int CurrChannel) throws ChannelNotFoundException {
+        try {
+            FileChannel fchannel = new FileInputStream(audSrc).getChannel();
+            MappedByteBuffer buffer = fchannel.map(FileChannel.MapMode.READ_ONLY, 0, fchannel.size());
+//            buffer = buffer.load();
+
+            int headerSize = getHeader().getHeaderSize();
+
+            int sampleIndex = 0;
+            int numChannels = getHeader().getNumberOfChannels();
+
+
+            if (CurrChannel >= numChannels) {
+                throw new ChannelNotFoundException();
+            }
+
+            int frameLength = getHeader().getDataLength();  // length of stream in-terms of frames
+
+//            int frmSze = (int) myStream.getFormat().getFrameSize(); // 2 , 4 ... bytes per frame
+
+            IntBuffer channelBuffer = IntBuffer.allocate(frameLength);
+            //int[][] toReturn = new int[numChannels][frameLength];
+            //int[] bytesToReturn = new int[frameLength];
+//            byte[] bytes = new byte[frameLength * frmSze];
+
+            //  myStream.read(bytes);
+
+
+            for (int t = headerSize; t < buffer.capacity();) {
+                for (int channel = 0; channel < numChannels; channel++) {
+                    // only read the channels data that is requested
+
+                    int low = (int) buffer.get(t);
+                    t++;
+                    int high = (int) buffer.get(t);
+                    t++;
+                    int sample = getSixteenBitSample(high, low);
+                    if (channel == CurrChannel) {
+                        //  bytesToReturn[sampleIndex] = sample;
+//                        channelBuffer.position(t);
+                        channelBuffer.put(sample);
+                    }
+                    // toReturn[channel][sampleIndex] = sample;
+
+
+                }
+
+                sampleIndex++;
+            }
+            buffer.clear();
+            return channelBuffer.array();
+
+        } catch (Exception ex) {
+            Logger.getLogger(NonTrivialAudio.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+
+    }
+
+    /**
+     * Channel numbering starts with 0 ... getNoChannels()-1
+     *
+     * @param CurrChannel
+     * @return
+     */
     public int[] getAudioData(int CurrChannel) throws ChannelNotFoundException {
         AudioInputStream myStream = null;
         try {
@@ -508,7 +577,8 @@ public class NonTrivialAudio implements Runnable {
                 int frmSze = (int) myStream.getFormat().getFrameSize(); // 2 , 4 ... bytes per frame
 
 
-                int[][] toReturn = new int[numChannels][frameLength];
+                //int[][] toReturn = new int[numChannels][frameLength];
+                int[] bytesToReturn = new int[frameLength];
                 byte[] bytes = new byte[frameLength * frmSze];
 
                 myStream.read(bytes);
@@ -516,17 +586,26 @@ public class NonTrivialAudio implements Runnable {
 
                 for (int t = 0; t < bytes.length;) {
                     for (int channel = 0; channel < numChannels; channel++) {
+                        // only read the channels data that is requested
+
                         int low = (int) bytes[t];
                         t++;
                         int high = (int) bytes[t];
                         t++;
                         int sample = getSixteenBitSample(high, low);
-                        toReturn[channel][sampleIndex] = sample;
+                        if (channel == CurrChannel) {
+                            bytesToReturn[sampleIndex] = sample;
+                        }
+                        // toReturn[channel][sampleIndex] = sample;
+
+
                     }
+
                     sampleIndex++;
                 }
-
-                return toReturn[CurrChannel];
+                bytes = null;
+                System.gc();
+                return bytesToReturn;
             } catch (IOException ex) {
                 Logger.getLogger(NonTrivialAudio.class.getName()).log(Level.SEVERE, null, ex);
             }

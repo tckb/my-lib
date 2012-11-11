@@ -4,12 +4,12 @@
  */
 package com.tckb.audio.ui;
 
+import com.sun.java.swing.SwingUtilities3;
 import com.tckb.audio.AudProcessor;
 import com.tckb.audio.NonTrivialAudio;
 import com.tckb.audio.NonTrivialAudio.ChannelNotFoundException;
-import com.tckb.audio.part.Block;
+import com.tckb.sandbox.AudioUIExample;
 import com.tckb.util.Utility;
-import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -26,7 +26,6 @@ import java.util.logging.Logger;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.JButton;
-import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
@@ -87,14 +86,6 @@ public class AudioUI extends Observable {
         return this.defaultObserver.getStatus();
     }
 
-    public void zoomIn(int zlevel) {
-        defaultObserver.zoomWave(true, zlevel);
-    }
-
-    public void zoomOut(int zlevel) {
-        defaultObserver.zoomWave(false, zlevel);
-    }
-
     // TODO: temporary
     /**
      * Attach the transcript file generated from the aligner
@@ -115,15 +106,38 @@ public class AudioUI extends Observable {
     }
 
     public void zoomIn() {
-        defaultObserver.zoomWave(true, ++defaultObserver.zLevel);
+        defaultObserver.zoomIn();
     }
 
     public void zoomOut() {
-        defaultObserver.zoomWave(false, defaultObserver.zLevel--);
+        defaultObserver.zoomOut();
     }
 
     public void attachTranscriptPlay(JButton trans_align_but) {
         defaultObserver.attachTrPlayButton(trans_align_but);
+
+    }
+
+    public void resetZoom() {
+        defaultObserver.resetZoom();
+
+    }
+
+    public void setZoomStep(int step) {
+        defaultObserver.setZstep(step);
+
+    }
+
+    public void setLabel(String string, double d) {
+        defaultObserver.setLabelAt(string, d);
+    }
+
+    public void refreshWvPanel() {
+        defaultObserver.updateWaveform();
+    }
+
+    public void setZoomLevel(int i) {
+        defaultObserver.setZLevel(i);
 
     }
 
@@ -169,8 +183,11 @@ public class AudioUI extends Observable {
                     displayHeight = (int) waveformContainer.getSize().getHeight();
                     audio = new NonTrivialAudio((File) audioFile);
                     audLenMS = audio.getDurationInMS();
+
                     aProcesor = AudProcessor.createProcessor(audio, 0);
+
                     isTranscriptAvailable = false;
+
 
 
                     //TODO: Develop AudioProcessor.getZoomLevels(audio) and use that here
@@ -214,7 +231,10 @@ public class AudioUI extends Observable {
             aud_play_but.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent ae) {
-                    startPlaying();
+
+                    if (statusOK) {
+                        startPlaying();
+                    }
                 }
             });
 
@@ -311,8 +331,10 @@ public class AudioUI extends Observable {
             audio.start();
 
 
-            // Update seekers and transcript ( if available ) 
-            new Thread("seeker-updater") {
+
+
+
+          new Thread() {
                 int tsCnt = -1;
                 //TODO: This assumes that the timestamps start from 0.0!
                 double currTS = 0.0;
@@ -320,7 +342,7 @@ public class AudioUI extends Observable {
                 @Override
                 public void run() {
                     // Empty the container first
-                    trContainer.setText("");
+                    //trContainer.setText("");
 
 
 
@@ -329,11 +351,11 @@ public class AudioUI extends Observable {
                             // update only when there is no manaul override
                             if (!manualSeek) {
                                 // System.out.println("update thread: ..good to go!");
-                                updateSeekerMS((int) audio.getCurrentMS());
+                                updateSeekerMS(audio.getCurrentMS());
 
-                                if (isTranscriptAvailable) {
-                                    highlightTranscript(audio.getCurrentMS());
-                                }
+//                                if (isTranscriptAvailable) {
+//                                    highlightTranscript(audio.getCurrentMS());
+//                                }
 
 
                             } else {
@@ -348,90 +370,135 @@ public class AudioUI extends Observable {
 
 
                     }
-                }
 
-                private void highlightTranscript(double sec) {
-                    //System.out.println("Current Audio : " + audio.getCurrentMS());
+                }}.start();
+            
 
-                    // if we exhausted the transcript then return
-                    if (tsCnt < timeStamps.size() - 1) {
-                        //  System.out.println("CurrMs:" + sec);
+            // Update seekers and transcript ( if available ) 
+//            new Thread("seeker-updater") {
+//                int tsCnt = -1;
+//                //TODO: This assumes that the timestamps start from 0.0!
+//                double currTS = 0.0;
+//
+//                @Override
+//                public void run() {
+//                    // Empty the container first
+//                    //trContainer.setText("");
+//
+//
+//
+//                    while (audio != null && audioPlaying) {
+//                        try {
+//                            // update only when there is no manaul override
+//                            if (!manualSeek) {
+//                                // System.out.println("update thread: ..good to go!");
+//                                updateSeekerMS(audio.getCurrentMS());
+//
+//                                if (isTranscriptAvailable) {
+//                                    highlightTranscript(audio.getCurrentMS());
+//                                }
+//
+//
+//                            } else {
+//                                // System.out.println("update thread: I hate manual interactions! pausing...");
+//                            }
+//                            //TODO: CPU usuage!!
+//                            Thread.sleep(1);
+//                        } catch (InterruptedException ex) {
+//                            Logger.getLogger(AudioUI.class.getName()).log(Level.SEVERE, null, ex);
+//                        }
+//
+//
+//
+//                    }
+//                }
+//
+//                private void highlightTranscript(double sec) {
+//                    //System.out.println("Current Audio : " + audio.getCurrentMS());
+//
+//                    // if we exhausted the transcript then return
+//                    if (tsCnt < timeStamps.size() - 1) {
+//                        //  System.out.println("CurrMs:" + sec);
+//
+//                        // TODO: Use threshold
+//                        double trThresh = 50;
+//
+//                        if (trList != null) {
+//                            try {
+//                                String trWord = getPossibleHits(sec, trThresh);
+//
+//
+//                                if (trWord != null) {
+//
+//
+//                                    trContainer.setText(trContainer.getText() + " " + trWord);
+//
+//                                    int trStartIx = Utility.searchInTxComp(trContainer, trWord);
+//
+//                                    if (trStartIx >= 0) {
+//                                        //System.out.println(trWord);
+//                                        int trEndIx = trWord.length();
+//                                        // System.out.println("found at " + trStartIx);
+//                                        //  mylogger.log(Level.INFO, " Hit: {0},{1}", new Object[]{sec, trWord});
+//                                        //  trContainer.getHighlighter().removeAllHighlights();
+//                                        trHighContainer.getHighlighter().addHighlight(trStartIx - 1, trStartIx + trEndIx, DefaultHighlighter.DefaultPainter);
+//                                    }
+//
+//                                }
+//
+//                            } catch (BadLocationException ex) {
+//                                Logger.getLogger(AudioUI.class.getName()).log(Level.SEVERE, null, ex);
+//                            }
+//
+//                        }
+//
+//
+//                    } else {
+//                    }
+//
+//
+//                }
+//
+//                private String getPossibleHits(double currMs, final double trThresh) {
+//
+//                    // System.out.println("Diff: " + (Math.abs(currMs - currTS)));
+//
+//                    String word = null;
+//
+//                    // apply threshold to find possible hits
+//
+//                    if (Math.abs(currMs - currTS) <= trThresh || Math.abs(currMs - currTS) == 0) {
+//
+//                        currTS = getNextTimeStamp();
+//                        //  System.out.println("currTS: " + currTS);
+//                        word = getNextWord();
+//                        // System.out.println("word: " + word);
+//
+//                    }
+//
+//
+//
+//                    return word;
+//
+//                }
+//
+//                private String getNextWord() {
+//                    return trList.get(timeStamps.get(tsCnt));
+//                }
+//
+//                private double getNextTimeStamp() {
+//
+//                    return timeStamps.get(++tsCnt);
+//
+//                }
+//            }.start();
 
-                        // TODO: Use threshold
-                        double trThresh = 50;
+//            }
 
-                        if (trList != null) {
-                            try {
-                                String trWord = getPossibleHits(sec, trThresh);
-
-
-                                if (trWord != null) {
-
-
-                                    trContainer.setText(trContainer.getText() + " " + trWord);
-
-                                    int trStartIx = Utility.searchInTxComp(trContainer, trWord);
-
-                                    if (trStartIx >= 0) {
-                                        //System.out.println(trWord);
-                                        int trEndIx = trWord.length();
-                                        // System.out.println("found at " + trStartIx);
-                                        //  mylogger.log(Level.INFO, " Hit: {0},{1}", new Object[]{sec, trWord});
-                                        //  trContainer.getHighlighter().removeAllHighlights();
-                                        trHighContainer.getHighlighter().addHighlight(trStartIx - 1, trStartIx + trEndIx, DefaultHighlighter.DefaultPainter);
-                                    }
-
-                                }
-
-                            } catch (BadLocationException ex) {
-                                Logger.getLogger(AudioUI.class.getName()).log(Level.SEVERE, null, ex);
-                            }
-
-                        }
-
-
-                    } else {
-                    }
-
-
-                }
-
-                private String getPossibleHits(double currMs, final double trThresh) {
-
-                    // System.out.println("Diff: " + (Math.abs(currMs - currTS)));
-
-                    String word = null;
-
-                    // apply threshold to find possible hits
-
-                    if (Math.abs(currMs - currTS) <= trThresh || Math.abs(currMs - currTS) == 0) {
-
-                        currTS = getNextTimeStamp();
-                        //  System.out.println("currTS: " + currTS);
-                        word = getNextWord();
-                        // System.out.println("word: " + word);
-
-                    }
-
-
-
-                    return word;
-
-                }
-
-                private String getNextWord() {
-                    return trList.get(timeStamps.get(tsCnt));
-                }
-
-                private double getNextTimeStamp() {
-
-                    return timeStamps.get(++tsCnt);
-
-                }
-            }.start();
 
         }
 
+        
         private void setAutoPlay(boolean b) {
             this.autoPlay = b;
         }
@@ -440,16 +507,24 @@ public class AudioUI extends Observable {
             return this.statusOK;
         }
 
-        private void updateSeekerMS(int val) {
+        private void updateSeekerMS(double val) {
             // System.out.println("am updating");
             if (seeker != null) {
-                seeker.setValue(val);
+                seeker.setValue((int) val);
+
             }
             if (seeker2 != null) {
-                seeker2.setValue(val);
-                seeker2.setString(new Integer(seeker2.getValue()).toString() + " ms");
+                seeker2.setValue((int) val);
+                seeker2.setString(new Integer(seeker2.getValue()).toString() + " / " + seeker2.getMaximum() + " ms");
                 seeker2.setToolTipText(null);
                 seeker2.setBorderPainted(true);
+                seeker2.setStringPainted(true);
+            }
+            if (audioPlaying) {
+                audioPanel.updateWvPosition(val / 1000);
+            } else {
+                audioPanel.updateWvPosition(0);
+
             }
 
         }
@@ -471,12 +546,6 @@ public class AudioUI extends Observable {
             this.trHighContainer = trContainer;
         }
 
-        private void zoomWave(boolean zoomIn, int zoom) {
-            audioPanel.zoom(zoomIn, zLevel);
-
-
-        }
-
         private void resetSeekersMS(double duration) {
             // Adjust the seeker
             if (seeker != null) {
@@ -491,10 +560,11 @@ public class AudioUI extends Observable {
 
             if (seeker2 != null) {
                 seeker2.setValue(0);
-                seeker.setPaintTrack(true);
-                seeker.updateUI();
+                seeker2.updateUI();
                 seeker2.setMinimum(0);
                 seeker2.setMaximum((int) duration);
+                seeker2.setString((int) duration + " ms");
+                seeker2.setStringPainted(true);
             }
         }
 
@@ -507,6 +577,37 @@ public class AudioUI extends Observable {
             });
 
 
+        }
+
+        private void zoomIn() {
+            this.audioPanel.zoomIn();
+        }
+
+        private void zoomOut() {
+            this.audioPanel.zoomOut();
+        }
+
+        private void resetZoom() {
+            this.audioPanel.resetZoom();
+        }
+
+        private void setZstep(int step) {
+            this.audioPanel.setZoomStep(step);
+
+        }
+
+        private void setLabelAt(String string, double d) {
+            this.audioPanel.setStringAtSec(string, d);
+
+        }
+
+        private void updateWaveform() {
+            this.audioPanel.refreshPanel();
+
+        }
+
+        private void setZLevel(int i) {
+            this.audioPanel.setZoomLevel(i);
         }
     }
 }

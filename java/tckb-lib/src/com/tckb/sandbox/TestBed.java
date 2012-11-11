@@ -4,13 +4,14 @@
  */
 package com.tckb.sandbox;
 
-import com.tckb.audio.NonTrivialAudio;
+import com.tckb.borrowed.elan.WAVHeader;
+import com.tckb.util.Utility;
 import java.io.File;
-import java.io.IOException;
+import java.io.FileInputStream;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.UnsupportedAudioFileException;
 
 /**
  *
@@ -20,16 +21,31 @@ public class TestBed {
 
     public static void main(String[] args) {
         try {
-            NonTrivialAudio audio = new NonTrivialAudio(new File("/Users/tckb/Msc-MI/Thesis/audio@thesis/orig/audiotest_cut.wav"));
+            //        try {
+            //            NonTrivialAudio audio = new NonTrivialAudio(new File("/Users/tckb/Msc-MI/Thesis/audio@thesis/orig/audiotest_cut.wav"));
+            //
+            //            System.out.println("Audio Header information:"+audio.getHeader());
+            //            
+            //            
+            //            
+            //            
+            //            audio.start();
+            //            audio.pause();
+            //            audio.stop();
+            //            
 
-            System.out.println(audio);
+
+            File f = Utility.getFileFromUI(null);
+            final FileChannel channel = new FileInputStream(f).getChannel();
+            MappedByteBuffer buffer = channel.map(FileChannel.MapMode.READ_ONLY, 0, channel.size());
+            System.out.println("Buffer size: " + buffer.capacity());
+            System.out.println("header size: " + new WAVHeader(f.getAbsolutePath()));
 
 
-            audio.start();
 
 
-
-
+            // when finished
+            channel.close();
 
 
 
@@ -54,14 +70,17 @@ public class TestBed {
 
 
 
-        } catch (IOException ex) {
-            Logger.getLogger(TestBed.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (UnsupportedAudioFileException ex) {
-            Logger.getLogger(TestBed.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (LineUnavailableException ex) {
+            //        } catch (IOException ex) {
+            //            Logger.getLogger(TestBed.class.getName()).log(Level.SEVERE, null, ex);
+            //        } catch (UnsupportedAudioFileException ex) {
+            //            Logger.getLogger(TestBed.class.getName()).log(Level.SEVERE, null, ex);
+            //        } catch (LineUnavailableException ex) {
+            //            Logger.getLogger(TestBed.class.getName()).log(Level.SEVERE, null, ex);
+            //        }
+            //        
+        } catch (Exception ex) {
             Logger.getLogger(TestBed.class.getName()).log(Level.SEVERE, null, ex);
         }
-
 
 
 

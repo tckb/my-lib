@@ -14,10 +14,8 @@ import java.util.Collections;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JPanel;
-import javax.vecmath.Vector2d;
 import org.ejml.data.DenseMatrix64F;
 import org.ejml.ops.CommonOps;
-import org.ejml.ops.NormOps;
 
 /**
  *
@@ -34,6 +32,7 @@ public class AudProcessor {
     private NonTrivialAudio audio;
     private WvConstant wvParams;
     private int channel;
+    private double globalMax;
 
     private AudProcessor(NonTrivialAudio audio, int ch) throws ChannelNotFoundException {
         this.audio = audio;
@@ -49,29 +48,32 @@ public class AudProcessor {
 
     }
 
+    // TODO: Clean this mess up!
     // this assumes that the size of each sample is 16 bits
     public final Block[] processAudio() throws ChannelNotFoundException {//, int displayWidth) {
 
         // Independent Variables: Constants
-        int[] origDataSamples = audio.getAudioData(channel); // get the first channel
+        int[] origDataSamples = audio.getAudioData_fast(channel); // get the first channel
 
         DenseMatrix64F audioData = new DenseMatrix64F(1, origDataSamples.length);
         for (int j = 0; j < origDataSamples.length; j++) {
             audioData.set(0, j, (double) origDataSamples[j]);
         }
 
-        CommonOps.divide(CommonOps.elementMax(audioData),audioData);
+        globalMax = CommonOps.elementMax(audioData);
 
-        double[] normAudData = audioData.getData();
+
+
+//        CommonOps.divide(CommonOps.elementMax(audioData), audioData);
 
 
         wvParams.SAMPLE_COUNT = origDataSamples.length;
         calWvParams();
 
         Block bList[] = new Block[wvParams.BLOCK_COUNT]; // 0 -> blockcount-1
-        Block emptyBlock;
+//        Block emptyBlock;
         int bCnt = 0;
-        Reduction cRed = null;
+        Reduction cRed;
 
         for (int s = 0; bCnt < wvParams.BLOCK_COUNT; s += WvConstant.BLOCK_16K_SAMPLE) {
             mylogger.log(Level.FINE, "Filling block:{0}", bCnt);
@@ -79,35 +81,34 @@ public class AudProcessor {
             int sampleCount = (bCnt < wvParams.BLOCK_COUNT - 1) ? WvConstant.BLOCK_16K_SAMPLE : lastBlockRedCount * WvConstant.RED_SAMPLE_256;
             mylogger.log(Level.FINE, "Sample count: {0}", sampleCount);
 
-            emptyBlock = new Block(sampleCount);
+//            emptyBlock = new Block(sampleCount);
 
             for (int k = 0; k < sampleCount; k += WvConstant.RED_SAMPLE_256) {
                 //     mylogger.info(sampleCount%RED_SAMPLE_256);
 
 //                cRed = computeReduction(normAudData, s + k, WvConstant.RED_SAMPLE_256);
                 cRed = computeReduction(audioData, s + k, WvConstant.RED_SAMPLE_256);
-
-                if (!emptyBlock.put(cRed)) {
-                    mylogger.warning("Cann't add anymore!");
-                    break;
-                }
+                wvParams.rList.add(cRed);
+//
+//                if (!emptyBlock.put(cRed)) {
+//                    mylogger.warning("Cann't add anymore!");
+//                    break;
+//                }
             }
-            bList[bCnt++] = emptyBlock;
-
+//           bList[bCnt++] = emptyBlock;
+            bCnt++;
 
         }
-
+        origDataSamples = null;
         // Now, request for garbage collection
         System.gc();
 
         return bList;
 
     }
+// TODO: Deprecated method delete
 
     private Reduction computeReduction(double[] origDataSamples, int pos, int rSize) {
-
-
-
         ArrayList<Double> data = new ArrayList<Double>();
 
         for (int j = 0; j < rSize; j++) {
@@ -115,15 +116,10 @@ public class AudProcessor {
             double value = (double) origDataSamples[pos + j];
 
             data.add(value);
-            // mylogger.info(data2);
         }
-
-
 
         double max = Collections.max(data);
         double min = Collections.min(data);
-
-
 
         return new Reduction(min, max);
 
@@ -131,19 +127,9 @@ public class AudProcessor {
 
     private Reduction computeReduction(DenseMatrix64F rowData, int colS, int size) {
 
-//        System.out.println(" colS: "+colS+"cols+size "+ (colS+size) +" 0 1");
         DenseMatrix64F extract = CommonOps.extract(rowData, 0, 1, colS, colS + size);
-
-//        NormOps.normalizeF(extract);
-
-
-        Double max = CommonOps.elementMax(extract);
-        Double min = CommonOps.elementMin(extract);
-
-//        Vector2d normRed = new Vector2d(min, max);
-//        normRed.normalize();
-//        // System.out.println(normRed.x+":"+normRed.y);
-//        return new Reduction(normRed.x, normRed.y);
+        Double max = CommonOps.elementMax(extract) / globalMax;
+        Double min = CommonOps.elementMin(extract) / globalMax;
 
         return new Reduction(min, max);
 
@@ -152,13 +138,15 @@ public class AudProcessor {
     private void calWvParams() {
 
         srate = audio.getSampleRate();
+        wvParams.SRATE = srate;
 
         lastBlockSampleCount = wvParams.SAMPLE_COUNT % WvConstant.BLOCK_16K_SAMPLE;
         lastBlockRedCount = lastBlockSampleCount / WvConstant.RED_SAMPLE_256; // discard the remaining samples!
         fullBlocks = wvParams.SAMPLE_COUNT / WvConstant.BLOCK_16K_SAMPLE;
         wvParams.BLOCK_COUNT = (lastBlockSampleCount != 0) ? (fullBlocks + 1) : fullBlocks;
         wvParams.ADJ_SAMPLE_COUNT = (fullBlocks * WvConstant.BLOCK_16K_SAMPLE) + lastBlockRedCount * WvConstant.RED_SAMPLE_256; // adjusting the sample count
-        wvParams.DUR_SEC = wvParams.SAMPLE_COUNT / srate;
+        wvParams.DUR_MS = audio.getDurationInMS(); 
+        wvParams.DUR_SEC = audio.getDurationInSeconds();
         wvParams.RED_COUNT = fullBlocks * (WvConstant.BLOCK_16K_SAMPLE / WvConstant.RED_SAMPLE_256) + lastBlockRedCount;
 
 
@@ -173,7 +161,11 @@ public class AudProcessor {
 
     //TODO: Fix this!
     public JPanel getWavePanel(int initialW, int initialH) {
-        return new AudWvPanel(cachedData, wvParams, initialW, initialH);
+        AudWvPanel wavePanel = new AudWvPanel(cachedData, wvParams);
+        wavePanel.setZoomLevel(wavePanel.getMIN_ZOOM());
+
+
+        return wavePanel;
     }
 }
 //        Dataset data2 = new DefaultDataset();
