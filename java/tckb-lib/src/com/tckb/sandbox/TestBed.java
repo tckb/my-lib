@@ -4,14 +4,11 @@
  */
 package com.tckb.sandbox;
 
-import com.tckb.borrowed.elan.WAVHeader;
-import com.tckb.util.Utility;
-import java.io.File;
-import java.io.FileInputStream;
-import java.nio.MappedByteBuffer;
-import java.nio.channels.FileChannel;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.Timer;
 
 /**
  *
@@ -20,7 +17,24 @@ import java.util.logging.Logger;
 public class TestBed {
 
     public static void main(String[] args) {
+         javax.swing.Timer t = new Timer(5000, new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent ae) {
+                    System.out.println("I'm called");
+                }
+            });
+            t.setDelay(5000);
+//            t.setRepeats(false);
+            t.start();
+        
+        
+        
         try {
+            while(true){
+                
+            }
+            
             //        try {
             //            NonTrivialAudio audio = new NonTrivialAudio(new File("/Users/tckb/Msc-MI/Thesis/audio@thesis/orig/audiotest_cut.wav"));
             //
@@ -35,18 +49,18 @@ public class TestBed {
             //            
 
 
-            File f = Utility.getFileFromUI(null);
-            final FileChannel channel = new FileInputStream(f).getChannel();
-            MappedByteBuffer buffer = channel.map(FileChannel.MapMode.READ_ONLY, 0, channel.size());
-            System.out.println("Buffer size: " + buffer.capacity());
-            System.out.println("header size: " + new WAVHeader(f.getAbsolutePath()));
-
-
-
-
-            // when finished
-            channel.close();
-
+//            File f = Utility.getFileFromUI(null);
+//            final FileChannel channel = new FileInputStream(f).getChannel();
+//            MappedByteBuffer buffer = channel.map(FileChannel.MapMode.READ_ONLY, 0, channel.size());
+//            System.out.println("Buffer size: " + buffer.capacity());
+//            System.out.println("header size: " + new WAVHeader(f.getAbsolutePath()));
+//
+//
+//
+//
+//            // when finished
+//            channel.close();
+//
 
 
 

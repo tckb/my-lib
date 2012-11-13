@@ -26,6 +26,7 @@ import javax.swing.JButton;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
+import javax.swing.Timer;
 
 /**
  *
@@ -80,7 +81,6 @@ public class AudioUI extends Observable {
         return this.defaultObserver.getStatus();
     }
 
-
     public AudioDisplay getDisplay(TYPE type) {
         return defaultObserver.getDisplay(type);
 
@@ -101,6 +101,7 @@ public class AudioUI extends Observable {
         private AudProcessor aProcesor = null;
         // parameters of audio
         private Double audLenMS = 0.0;
+        private Timer playTimer;
 
         @Override
         public void update(Observable o, Object audioFile) {
@@ -142,18 +143,23 @@ public class AudioUI extends Observable {
 
                         startPlaying();
                     }
-                    this.statusOK = true;
 
-                } catch (IOException ex) {
-                    Logger.getLogger(AudioUI.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (UnsupportedAudioFileException ex) {
-                    Logger.getLogger(AudioUI.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (LineUnavailableException ex) {
-                    Logger.getLogger(AudioUI.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (ChannelNotFoundException ex) {
+                    playTimer = new Timer(0, new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent ae) {
+                            startThePlay();
+                        }
+                    });
+                    playTimer.setDelay(1);
+                    playTimer.start();
+                    playTimer.setRepeats(true);
+
+                    this.statusOK = true;
+                } catch (Exception ex) {
                     mylogger.log(Level.SEVERE, null, ex);
                 }
             }
+
 //catch (IOException ex) {
 ////                    mylogger.log(Level.SEVERE, null, ex);
 ////                } catch (UnsupportedAudioFileException ex) {
@@ -241,6 +247,7 @@ public class AudioUI extends Observable {
         private void pauseCurrentPlay() {
 
             if (audio != null) {
+                audioPlaying = false;
                 audio.pause();
             }
 
@@ -294,10 +301,6 @@ public class AudioUI extends Observable {
                                 // System.out.println("update thread: ..good to go!");
                                 updateSeekerMS(audio.getCurrentMS());
 
-//                                if (isTranscriptAvailable) {
-//                                    highlightTranscript(audio.getCurrentMS());
-//                                }
-
 
                             } else {
                                 // System.out.println("update thread: I hate manual interactions! pausing...");
@@ -317,6 +320,14 @@ public class AudioUI extends Observable {
 
 
 
+
+        }
+
+        private void startThePlay() {
+//            System.out.println("Start the play");
+            if (audio != null && audioPlaying) {
+                updateSeekerMS(audio.getCurrentMS());
+            }
 
         }
 
@@ -372,8 +383,6 @@ public class AudioUI extends Observable {
             }
         }
 
-       
-       
         private AudioDisplay getDisplay(AudioDisplay.TYPE type) {
             switch (type) {
                 case WAVEFORM:

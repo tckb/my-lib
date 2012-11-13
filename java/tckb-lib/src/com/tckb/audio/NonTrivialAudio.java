@@ -498,7 +498,7 @@ public class NonTrivialAudio implements Runnable {
         try {
             FileChannel fchannel = new FileInputStream(audSrc).getChannel();
             MappedByteBuffer buffer = fchannel.map(FileChannel.MapMode.READ_ONLY, 0, fchannel.size());
-//            buffer = buffer.load();
+//               buffer = buffer.load();
 
             int headerSize = getHeader().getHeaderSize();
 

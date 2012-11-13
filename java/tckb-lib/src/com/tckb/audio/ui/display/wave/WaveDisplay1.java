@@ -3,7 +3,7 @@ package com.tckb.audio.ui.display.wave;
 import com.tckb.audio.part.Block;
 import com.tckb.audio.part.Block.Reduction;
 import com.tckb.audio.part.Label;
-import com.tckb.audio.ui.display.AudioDisplay;
+import com.tckb.audio.ui.display.AudioDisplay1;
 import com.tckb.borrowed.jfreechart.ChartColor;
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -14,12 +14,11 @@ import java.awt.geom.Line2D;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JPanel;
 import org.ejml.ops.CommonOps;
 import org.ejml.simple.SimpleMatrix;
 
@@ -27,7 +26,7 @@ import org.ejml.simple.SimpleMatrix;
  *
  * @author tckb
  */
-public class WaveDisplay extends AudioDisplay {
+public class WaveDisplay1 extends JPanel implements AudioDisplay1 {
 
     private static final Logger mylogger = Logger.getLogger("com.tckb.audio.ui");
     private final int h = 0;
@@ -43,43 +42,27 @@ public class WaveDisplay extends AudioDisplay {
     private double MIN_ZOOM;
     private ArrayList<Label> labels = new ArrayList<Label>();
     private int crosshairLen;
-    private int WIN_TIME_HEIGHT = 2;
-    private int CURR_TIME_HEIGHT = 2;
-    private int LABEL_HEIGHT = 2;
-    private final int WIN_MIN_HORPX = 0;
-    private final int WIN_MIN_VERPX = 0;
-    private int FONT_CHAR_HEIGHT;
-    private int WIN_MAX_HORPX = 0;
-    private int WIN_MAX_VERPX = 0;
-    private int FONT_CHAR_GAP = 0;
-    private int WAVE_HEIGHT;
-    private boolean displayPixels;
 
     private void setMAX_ZOOM(double level) {
         mylogger.log(Level.INFO, "Settings max zoom: {0}", level);
         this.MAX_ZOOM = level;
 
-
     }
 
-    @Override
     public double getMAX_ZOOM() {
         return MAX_ZOOM;
     }
 
-    @Override
     public double getMIN_ZOOM() {
         return MIN_ZOOM;
     }
 
-    @Override
     public final void setMIN_ZOOM(double level) {
         mylogger.log(Level.INFO, "Settings min zoom: {0}", level);
 
         this.MIN_ZOOM = level;
     }
 
-    @Override
     public void zoomIn() {
         int step = getZoomStep(); // sec
         mylogger.log(Level.INFO, "Zooming-in {0} level ", step);
@@ -99,7 +82,6 @@ public class WaveDisplay extends AudioDisplay {
         }
     }
 
-    @Override
     public void zoomOut() {
 
         int step = getZoomStep();
@@ -122,7 +104,6 @@ public class WaveDisplay extends AudioDisplay {
 
     }
 
-    @Override
     public final void setZoomStep(int level) {
         mylogger.log(Level.INFO, "Setting zoom step level:{0} ", level);
 
@@ -130,7 +111,6 @@ public class WaveDisplay extends AudioDisplay {
 
     }
 
-    @Override
     public int getZoomStep() {
         return zoomStep;
     }
@@ -138,7 +118,6 @@ public class WaveDisplay extends AudioDisplay {
     /*
      *  In sec's
      */
-    @Override
     public final void setZoomLevel(double seconds) {
 //        if (windowSize_sec <= getMAX_ZOOM()) {
         mylogger.log(Level.INFO, "Setting zoom level :{0} seconds ", seconds);
@@ -152,7 +131,6 @@ public class WaveDisplay extends AudioDisplay {
         repaint();
     }
 
-    @Override
     public double getZoomLevel() {
         return windowSize_sec;
     }
@@ -162,7 +140,7 @@ public class WaveDisplay extends AudioDisplay {
      * @param datab
      * @param wvParams
      */
-    public WaveDisplay(Block[] datab, WvConstant wvParams) {
+    public WaveDisplay1(Block[] datab, WvConstant wvParams) {
         mylogger.info("Initializing wave display");
 
         params = wvParams;
@@ -178,18 +156,14 @@ public class WaveDisplay extends AudioDisplay {
             windowSize_sec = params.DUR_SEC;
         }
         crosshairLen = 15;
-        cachRed = new ArrayList< Reduction>();
-        displayPixels = true;
 
 
     }
 
-    @Override
     public int getCrosshairLen() {
         return crosshairLen;
     }
 
-    @Override
     public void setCrosshairLen(int crosshairLen) {
         mylogger.log(Level.INFO, "Setting crosshair length to :{0} pixels ", crosshairLen);
 
@@ -200,17 +174,6 @@ public class WaveDisplay extends AudioDisplay {
     @Override
     public void paintComponent(final Graphics g) {
         super.paintComponent(g);
-
-        WIN_MAX_HORPX = getWidth();
-        WIN_MAX_VERPX = getHeight();
-        FONT_CHAR_HEIGHT = g.getFontMetrics().getHeight();
-        FONT_CHAR_GAP = getFont().getSize();
-
-
-        WIN_TIME_HEIGHT = WIN_MIN_VERPX + FONT_CHAR_GAP + FONT_CHAR_HEIGHT;
-        CURR_TIME_HEIGHT = WIN_TIME_HEIGHT + FONT_CHAR_HEIGHT;
-        LABEL_HEIGHT = CURR_TIME_HEIGHT + FONT_CHAR_HEIGHT;
-        WAVE_HEIGHT = WIN_MAX_VERPX - LABEL_HEIGHT;
         mylogger.fine("Inside paiting component ");
         adjWvParams(getWidth());
 
@@ -241,11 +204,11 @@ public class WaveDisplay extends AudioDisplay {
     }
 
     private void displayPixels(Graphics2D g, int currPxl, int maxPixel) {
-        //   g.clearRect(0, 0, getWidth(), getHeight());
+//        g.clearRect(0, 0, getWidth(), getHeight());
         mylogger.log(Level.INFO, "Painting {0} hor-pixels {1} vert-pixels   ", new Object[]{maxPixel, getHeight()});
 
         g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-        g.setRenderingHint(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_ENABLE);
+//        g.setRenderingHint(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_ENABLE);
 
 
 
@@ -256,32 +219,27 @@ public class WaveDisplay extends AudioDisplay {
 
 
         // Paint window start 
-        String t1 = Double.toString(adjustDoubleDecimal(winStart_sample / params.SRATE)) + " sec";
-        // paint string
-
-
-        g.drawString(t1, WIN_MIN_HORPX + 1, WIN_MIN_VERPX + FONT_CHAR_GAP);
+        g.drawString(Double.toString(adjustDoubleDecimal(winStart_sample / params.SRATE)) + " sec", 1, 10);
         g.setStroke(waveStroke);
-        // paint pointer
-        g.draw(new Line2D.Double(WIN_MIN_HORPX + 1, WIN_MIN_VERPX + FONT_CHAR_HEIGHT, WIN_MIN_HORPX + 1, FONT_CHAR_HEIGHT + 3));
+        g.draw(new Line2D.Double(1, 14, 1, 18));
 
 
 
         // Paint window End 
-        String t = Double.toString(adjustDoubleDecimal(winEnd_sample / params.SRATE)) + " sec";
-        int t_width = g.getFontMetrics().stringWidth(t);
-        // paint string
-        g.drawString(t, WIN_MAX_HORPX - t_width - 1, WIN_MIN_VERPX + FONT_CHAR_GAP);
-        // paint pointer
-        g.draw(new Line2D.Double(WIN_MAX_HORPX - 2, WIN_MIN_VERPX + FONT_CHAR_HEIGHT, WIN_MAX_HORPX - 2, WIN_MIN_VERPX + FONT_CHAR_HEIGHT + 3));
+
+        g.drawString(Double.toString(adjustDoubleDecimal(winEnd_sample / params.SRATE)) + " sec", getWidth() - 50, 10);
+        g.draw(new Line2D.Double(getWidth() - 2, 14, getWidth() - 2, 18));
 
         // Paint duration
-        g.drawString("Duration: " + Double.toString(adjustDoubleDecimal(params.DUR_SEC)) + " sec", WIN_MAX_HORPX / 2, WIN_MAX_VERPX - 2);
+        g.drawString("Duration: " + Double.toString(adjustDoubleDecimal(params.DUR_SEC)) + " sec", getWidth() / 2, getHeight() - 10);
+
+
 
 
         int winStart_Red = redNumber(winStart_sample);
-        int currPlay_Pxl = 0;
-        int mid = interpolate(0, -1, 1, LABEL_HEIGHT, WAVE_HEIGHT);
+        cachRed = new ArrayList< Reduction>();
+        int currPlay_Red = 0;
+        int mid = interpolate(0, -1, 1, 0, getHeight());
 
 
         List<Reduction> currWinRedList = params.wavData.subList(redNumber(winStart_sample), redNumber(winEnd_sample));
@@ -289,6 +247,11 @@ public class WaveDisplay extends AudioDisplay {
 
         while (currPxl < maxPixel) {
 
+
+
+
+
+//            g.setColor(ChartColor.LIGHT_BLUE);
             g.setColor(new Color(0x40, 0x45, 0xFF));
             g.setStroke(waveStroke);
 
@@ -301,8 +264,8 @@ public class WaveDisplay extends AudioDisplay {
             double tmax = Integer.MIN_VALUE;
 
             for (int i = currWinPxl_redstart; i < currWinPxl_redEnd; i++) {
-                tmax = Math.max(tmax, currWinRedList.get(i).getMax());
-                tmin = Math.min(tmin, currWinRedList.get(i).getMin());
+                tmax = Math.max(tmax, currWinRedList.get(i).getMax());// max(tmax, currWinRedList.get(i).getMax());
+                tmin = Math.min(tmin, currWinRedList.get(i).getMin());// min(tmin, currWinRedList.get(i).getMin());
             }
 
 
@@ -310,93 +273,73 @@ public class WaveDisplay extends AudioDisplay {
 
 
             // interpolate tmin & tmax to the current width and height
-            int tmin_adj = interpolate(tmin, -1, 1, LABEL_HEIGHT, WAVE_HEIGHT);
-            int tmax_adj = interpolate(tmax, -1, 1, LABEL_HEIGHT, WAVE_HEIGHT);
+            int tmin_adj = interpolate(tmin, -1, 1, 0, getHeight());
+            int tmax_adj = interpolate(tmax, -1, 1, 0, getHeight());
 
-//            if(tmax_adj - tmin_adj >= ( (getHeight() - 10 ) /2 )){
-//                System.out.println("Spurious peak found!");
-//            }
             mylogger.log(Level.FINEST, "Interpolating wavepixels old/new: {0}/{1}, {2}/{3}  ", new Object[]{tmin, tmin_adj, tmax, tmax_adj});
-            cachRed.add(new Reduction(tmax_adj, tmin_adj));
+
+            if ((tmax_adj) <= getHeight() / 2) {
+
+                mylogger.log(Level.FINEST, "tmax_adj is safe to render: tmax: {0} <= height/2: {1}   ", new Object[]{tmax_adj, getHeight() / 2});
 
 
-//            mylogger.log(Level.FINEST, "tmax_adj is safe to render: tmax: {0} <= height/2: {1}   ", new Object[]{tmax_adj, getHeight() / 2});
-//          Condition to avoid spurious peaks
-            if (tmax_adj - tmin_adj < ((WAVE_HEIGHT - LABEL_HEIGHT) / 2)) {
+
+                // Save the adjested reductions
+                cachRed.add(new Reduction(tmax_adj, tmin_adj));
 
 
-                // save current sec for ccrosshair pointer
+
+
+                mylogger.finest("Draw 'the' pixel min-max pair");
+                g.setColor(ChartColor.BLUE);
+                g.draw(new Line2D.Double(currPxl, tmin_adj, currPxl, tmax_adj));
+
+
+
+                // save  current sec for painting crosshair
                 if (currPlay_redix >= currWinPxl_redstart && currPlay_redix <= currWinPxl_redEnd) {
 
-                    currPlay_Pxl = currPxl;
-
+                    currPlay_Red = currPxl;
 
                 }
 
+                mylogger.finest("Painting available labels");
 
-                // Save the adjusted reductions
-
-                // draw current pixel
-                if (displayPixels) {
-                    g.setColor(ChartColor.BLUE);
-                    g.draw(new Line2D.Double(currPxl, tmin_adj, currPxl, tmax_adj));
-                }
-                // Paint labels
                 for (Label l : labels) {
-                    String text = l.getText();
                     Double sample = l.getSample();
                     int sample_redix = (redNumber(sample) - winStart_Red - 1);
-
-
-                    // if the label is in  current window
                     if (sample_redix >= currWinPxl_redstart && sample_redix <= currWinPxl_redEnd) {
-
-
-                        int retl = Collections.binarySearch(labels, l, new Comparator<Label>() {
-                            @Override
-                            public int compare(Label t, Label t1) {
-                                return t.getCurrRedix().compareTo(t1.getCurrRedix());
-
-                            }
-                        });
-
-                        // not found
-//                    if (retl >= 0) {
-                        l.setCurrRedix(sample_redix);
-
+//                    if (!l.isIsVisible()) {
+                        l.setCurrRedix(currPxl);
                         g.setColor(ChartColor.VERY_LIGHT_GREEN);
-                        g.draw(new Line2D.Double(currPxl, CURR_TIME_HEIGHT - 5, currPxl, tmax_adj - 1));
-                        g.setColor(ChartColor.VERY_DARK_MAGENTA);
-                        g.drawString(l.getText(), currPxl + 7, CURR_TIME_HEIGHT + 2);
+                        g.draw(new Line2D.Double(l.getCurrRedix(), 50, l.getCurrRedix(), getHeight() - 50));
+                        g.setColor(ChartColor.VERY_LIGHT_YELLOW);
 
-                        l.setIsVisible(false);
+                        g.drawString(l.getText(), l.getCurrRedix() + 5, getHeight() - 50);
+                        l.setIsVisible(true);
 //                    }
 
-                    }
 
+                    }
                 }
 
 
-
-
+                currPxl++;
 
             }
-
-            currPxl++;
 
         }
 
         // display crosshair
         mylogger.finest("Painting crosshair");
 
-        int p = currPlay_Pxl - crosshairLen;
+        int p = currPlay_Red - crosshairLen;
         int i = 1;
 
 
         while (i <= (2 * crosshairLen) + 1) {
 //            System.out.println("p: "+p);
             if ((p + i) > 0 && (p + i) < maxPixel && (p + i) < cachRed.size()) {
-
 
                 double max = cachRed.get((p + i)).getMax();
                 double min = cachRed.get((p + i)).getMin();
@@ -412,17 +355,17 @@ public class WaveDisplay extends AudioDisplay {
                 g.draw(new Line2D.Double(p + i, min - 0.2, p + i, min + 0.2));
 
                 // crosshair time
-                if ((p + i) == currPlay_Pxl) {
+                if ((p + i) == currPlay_Red) {
                     g.setStroke(currPointerStroke);
-                    // draw pulse
+
                     g.setColor(ChartColor.LIGHT_RED);
                     g.draw(new Line2D.Double((p + i), mid + 0.5, (p + i), mid - 0.5));
 
-                    // draw string
-                    g.drawString(Double.toString(adjustDoubleDecimal(currPlay_sample / params.SRATE)) + " sec", (p + i) - 5, WIN_TIME_HEIGHT + 2);
+
+                    g.drawString(Double.toString(adjustDoubleDecimal(currPlay_sample / params.SRATE)) + " sec", (p + i) - 5, 15);
                     g.setStroke(waveStroke);
-                    // draw pointer
-                    g.draw(new Line2D.Double((p + i), WIN_TIME_HEIGHT + 2, (p + i), WIN_TIME_HEIGHT + 5));
+
+                    g.draw(new Line2D.Double((p + i), 18, (p + i), 20));
 
 
 
@@ -433,7 +376,6 @@ public class WaveDisplay extends AudioDisplay {
             }
             i++;
         }
-        cachRed.clear();
 
 
     }
@@ -460,13 +402,6 @@ public class WaveDisplay extends AudioDisplay {
 
         int scale = (int) Math.round((newRangeMax - newRangeMin) / (oldRangeMax - oldRangeMin));
         int newValue = (int) Math.round(newRangeMin + (oldValue - oldRangeMin) * scale);
-
-//        if (newValue >= newRangeMin && newValue < newRangeMax) {
-//            return newValue;
-//        } else {
-//            return 0;
-//        }
-
         return newValue;
     }
 
@@ -490,6 +425,8 @@ public class WaveDisplay extends AudioDisplay {
 
 
             currPlay_sample = pos_sample;
+            revalidate();
+
             repaint();
 
         } else {
@@ -514,6 +451,7 @@ public class WaveDisplay extends AudioDisplay {
             currPlay_sample = pos_sample;
 
 //            System.out.println("p:" + pos_sec + ":s:" + winStart_sample + ":" + winEnd_sample);
+            revalidate();
             repaint();
         }
 
@@ -530,28 +468,22 @@ public class WaveDisplay extends AudioDisplay {
         return ((int) Math.floor(sample / 256));
     }
 
-    @Override
     public void resetZoom() {
         mylogger.info("Resetting zoom ");
         this.setZoomLevel(getMIN_ZOOM());
 
     }
 
-    @Override
     public void setLabelAt(String text, double pos_sec) {
-
         mylogger.log(Level.INFO, "Setting label: {0} at sec: {1}", new Object[]{text, pos_sec});
 
-        if (text != null) {
-            double pos_sample = pos_sec * params.SRATE;
-            labels.add(new Label(text, pos_sample));
-        }
+        double pos_sample = pos_sec * params.SRATE;
 
+        labels.add(new Label(text, pos_sample));
 
 
     }
 
-    @Override
     public String deleteLabelAt(double pos_sec) {
 
         double pos_sample = pos_sec * params.SRATE;
@@ -571,7 +503,6 @@ public class WaveDisplay extends AudioDisplay {
 
     }
 
-    @Override
     public int clearAllLabels() {
         mylogger.info("Cleaing all labels");
         int nlabels = labels.size();
@@ -580,7 +511,6 @@ public class WaveDisplay extends AudioDisplay {
 
     }
 
-    @Override
     public void refreshDisplay() {
         mylogger.info("Refreshing display");
 
@@ -593,23 +523,20 @@ public class WaveDisplay extends AudioDisplay {
 
     public double adjustDoubleDecimal(double value) {
         mylogger.log(Level.FINE, "Adjusting valu {0}", new Object[]{value});
-        // Bug fix: 
-//        For german locale 3.333 => 3,33 which would raise an error 
+
         DecimalFormatSymbols otherSymbols = new DecimalFormatSymbols(Locale.getDefault());
         otherSymbols.setDecimalSeparator('.');
         otherSymbols.setGroupingSeparator(',');
-        // Bug fix
+        //
         DecimalFormat newFormat = new DecimalFormat("#.##", otherSymbols);
         return Double.valueOf(newFormat.format(value));
 
     }
 
-    @Override
     public ArrayList<Label> getAllLabels() {
         return labels;
     }
 
-    @Override
     public void setCrosshairPos(double pos_sec) {
         mylogger.log(Level.INFO, "Setting crosshair position at : {0} sec", new Object[]{pos_sec});
 
@@ -620,10 +547,5 @@ public class WaveDisplay extends AudioDisplay {
 
         winStart_sample = Math.floor(pos_sample / 2);
         winEnd_sample += windowSize_sample;
-    }
-
-    @Override
-    public void toggleDisplay() {
-        displayPixels = !displayPixels;
     }
 }

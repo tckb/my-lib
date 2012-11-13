@@ -48,14 +48,24 @@ public class AudioUIExample extends javax.swing.JFrame {
         audSlider = new javax.swing.JProgressBar();
         myPanel = new javax.swing.JScrollPane();
         filechooserBut = new javax.swing.JButton();
-        stopAudio = new javax.swing.JButton();
-        playAudio = new javax.swing.JButton();
-        jButton4 = new javax.swing.JButton();
         jButton1 = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
-        jButton3 = new javax.swing.JButton();
         zoomStepUI = new javax.swing.JTextField();
+        jButton3 = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
+        playAudio = new javax.swing.JButton();
+        stopAudio = new javax.swing.JButton();
+        currPos = new javax.swing.JTextField();
+        jButton7 = new javax.swing.JButton();
+        jToggleButton1 = new javax.swing.JToggleButton();
+        jButton4 = new javax.swing.JButton();
+        label = new javax.swing.JTextField();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        time = new javax.swing.JTextField();
+        jButton5 = new javax.swing.JButton();
+        jLabel4 = new javax.swing.JLabel();
+        jButton6 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("AudioUI Test");
@@ -63,16 +73,60 @@ public class AudioUIExample extends javax.swing.JFrame {
 
         myPanel.setDoubleBuffered(true);
 
-        filechooserBut.setText("open file");
+        filechooserBut.setText("Load wav");
         filechooserBut.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 filechooserButActionPerformed(evt);
             }
         });
 
-        stopAudio.setText("Stop");
+        jButton1.setText("Z+");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
+        jButton2.setText("Z-");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+
+        zoomStepUI.setText("1");
+
+        jButton3.setText("<->");
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
+
+        jLabel1.setText("sec");
 
         playAudio.setText("Play");
+
+        stopAudio.setText("Pause");
+        stopAudio.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                stopAudioActionPerformed(evt);
+            }
+        });
+
+        jButton7.setText("set cursor");
+        jButton7.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton7ActionPerformed(evt);
+            }
+        });
+
+        jToggleButton1.setText("Toggle Display");
+        jToggleButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jToggleButton1ActionPerformed(evt);
+            }
+        });
 
         org.jdesktop.layout.GroupLayout jPanel1Layout = new org.jdesktop.layout.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -86,59 +140,92 @@ public class AudioUIExample extends javax.swing.JFrame {
                             .add(org.jdesktop.layout.GroupLayout.TRAILING, audSlider, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .add(org.jdesktop.layout.GroupLayout.TRAILING, myPanel)))
                     .add(jPanel1Layout.createSequentialGroup()
-                        .add(playAudio)
+                        .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                            .add(jPanel1Layout.createSequentialGroup()
+                                .addContainerGap()
+                                .add(playAudio)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(stopAudio)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(filechooserBut)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(jToggleButton1))
+                            .add(jPanel1Layout.createSequentialGroup()
+                                .add(jButton1)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(zoomStepUI, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 33, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(jLabel1)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(jButton2)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(jButton3)
+                                .add(39, 39, 39)
+                                .add(currPos, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 73, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(stopAudio)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .add(filechooserBut)))
+                        .add(jButton7)
+                        .add(0, 314, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .add(myPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 316, Short.MAX_VALUE)
-                .add(18, 18, 18)
+                .add(myPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 349, Short.MAX_VALUE)
+                .add(18, 18, Short.MAX_VALUE)
                 .add(audSlider, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .add(12, 12, 12)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(playAudio)
-                    .add(stopAudio)
-                    .add(filechooserBut))
-                .addContainerGap())
+                    .add(jButton1)
+                    .add(jButton2)
+                    .add(zoomStepUI, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(jButton3)
+                    .add(jLabel1)
+                    .add(currPos, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(jButton7))
+                .add(18, 18, 18)
+                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                        .add(playAudio)
+                        .add(stopAudio))
+                    .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                        .add(filechooserBut)
+                        .add(jToggleButton1)))
+                .addContainerGap(13, Short.MAX_VALUE))
         );
 
-        jButton4.setText("load text");
+        jButton4.setText("Load Labels");
         jButton4.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton4ActionPerformed(evt);
             }
         });
 
-        jButton1.setText("zoom In");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        label.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                labelActionPerformed(evt);
             }
         });
 
-        jButton2.setText("zoom out");
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
+        jLabel2.setText("Label:");
+
+        jLabel3.setText("Time:");
+
+        jButton5.setText("Set");
+        jButton5.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
+                jButton5ActionPerformed(evt);
             }
         });
 
-        jButton3.setText("reset");
-        jButton3.addActionListener(new java.awt.event.ActionListener() {
+        jLabel4.setText("sec");
+
+        jButton6.setText("delete");
+        jButton6.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton3ActionPerformed(evt);
+                jButton6ActionPerformed(evt);
             }
         });
-
-        zoomStepUI.setText("1");
-
-        jLabel1.setText("sec");
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -146,44 +233,58 @@ public class AudioUIExample extends javax.swing.JFrame {
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                    .add(jPanel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .add(layout.createSequentialGroup()
                         .addContainerGap()
-                        .add(jButton1)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                            .add(layout.createSequentialGroup()
+                                .add(jLabel2)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(label, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 117, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(jLabel3))
+                            .add(jButton5))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jButton2)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(zoomStepUI, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 33, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jLabel1)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jButton3)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 394, Short.MAX_VALUE)
-                        .add(jButton4)))
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                            .add(layout.createSequentialGroup()
+                                .add(time, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 82, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
+                                .add(jLabel4)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(jButton6))
+                            .add(jButton4))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .add(jPanel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .add(18, 18, 18)
+                .add(27, 27, 27)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jButton4)
-                    .add(jButton1)
-                    .add(jButton2)
-                    .add(zoomStepUI, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel1)
-                    .add(jButton3))
+                    .add(label, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(jLabel2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 28, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(jLabel3)
+                    .add(time, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(jButton6)
+                    .add(jLabel4))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(jButton5)
+                    .add(jButton4))
                 .addContainerGap())
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    @SuppressWarnings("empty-statement")
     private void filechooserButActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_filechooserButActionPerformed
-        audFile = Utility.getFileFromUI(myPanel);
+        audFile = Utility.getFileFromUI(myPanel, Utility.wavFileFilter);
         myAudio.setAudioFile(audFile);
-        myAudio.getDisplay(AudioDisplay.TYPE.WAVEFORM).setZoomLevel(3);;
+        myAudio.getDisplay(AudioDisplay.TYPE.WAVEFORM).setCrosshairLen(20);
+
+        myAudio.getDisplay(AudioDisplay.TYPE.WAVEFORM).setZoomLevel(7);;
     }//GEN-LAST:event_filechooserButActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
@@ -203,15 +304,15 @@ public class AudioUIExample extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton3ActionPerformed
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
-        File textFile = Utility.getFileFromUI(jPanel1);
+        File textFile = Utility.getFileFromUI(jPanel1, Utility.txtFileFilter);
         String[] words = Utility.getWordsInFile(textFile);
 //        System.out.println(words);
         int l = 0;
         while (l < words.length - 1) {
 //            System.out.println(words[l] + ":" + words[l + 1]);
-            String label = words[l + 1];
-            Double time = Double.parseDouble(words[l]);
-            myAudio.getDisplay(AudioDisplay.TYPE.WAVEFORM).setLabelAt(label, time);
+            String lbl = words[l + 1];
+            Double t = Double.parseDouble(words[l]);
+            myAudio.getDisplay(AudioDisplay.TYPE.WAVEFORM).setLabelAt(lbl, t);
             l += 2;
         }
 
@@ -220,11 +321,53 @@ public class AudioUIExample extends javax.swing.JFrame {
 
     }//GEN-LAST:event_jButton4ActionPerformed
 
+    private void labelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_labelActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_labelActionPerformed
+
+    private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
+        if (!label.getText().isEmpty() && !time.getText().isEmpty()) {
+            myAudio.getDisplay(AudioDisplay.TYPE.WAVEFORM).setLabelAt(label.getText(), Double.parseDouble(time.getText()));
+            myAudio.getDisplay(AudioDisplay.TYPE.WAVEFORM).refreshDisplay();
+
+        }
+
+
+
+    }//GEN-LAST:event_jButton5ActionPerformed
+
+    private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
+        if (!time.getText().isEmpty()) {
+            myAudio.getDisplay(AudioDisplay.TYPE.WAVEFORM).deleteLabelAt(Double.parseDouble(time.getText()));
+            myAudio.getDisplay(AudioDisplay.TYPE.WAVEFORM).refreshDisplay();
+
+        }
+    }//GEN-LAST:event_jButton6ActionPerformed
+
+    private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
+        if (!currPos.getText().isEmpty()) {
+            myAudio.getDisplay(AudioDisplay.TYPE.WAVEFORM).updateCrosshairPosition(Double.parseDouble(currPos.getText()));
+            myAudio.getDisplay(AudioDisplay.TYPE.WAVEFORM).refreshDisplay();
+
+        }
+
+
+
+    }//GEN-LAST:event_jButton7ActionPerformed
+
+    private void stopAudioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_stopAudioActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_stopAudioActionPerformed
+
+    private void jToggleButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleButton1ActionPerformed
+        myAudio.getDisplay(AudioDisplay.TYPE.WAVEFORM).toggleDisplay();
+    }//GEN-LAST:event_jToggleButton1ActionPerformed
+
     /**
      * @param args the command line arguments
      */
     public static void main(String args[]) {
-        /*
+        /*  
          * Set the Nimbus look and feel
          */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
@@ -251,13 +394,14 @@ public class AudioUIExample extends javax.swing.JFrame {
         }
         //</editor-fold>
 
-        Logger.getLogger("com.tckb").setLevel(Level.SEVERE);
+        Logger.getLogger("com.tckb").setLevel(Level.OFF);
 
 
         /*
          * Create and display the form
          */
         java.awt.EventQueue.invokeLater(new Runnable() {
+            @Override
             public void run() {
                 new AudioUIExample().setVisible(true);
             }
@@ -265,16 +409,26 @@ public class AudioUIExample extends javax.swing.JFrame {
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JProgressBar audSlider;
+    private javax.swing.JTextField currPos;
     private javax.swing.JButton filechooserBut;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
+    private javax.swing.JButton jButton5;
+    private javax.swing.JButton jButton6;
+    private javax.swing.JButton jButton7;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JToggleButton jToggleButton1;
+    private javax.swing.JTextField label;
     private javax.swing.JScrollPane myPanel;
     private javax.swing.JButton playAudio;
     private javax.swing.JButton stopAudio;
+    private javax.swing.JTextField time;
     private javax.swing.JTextField zoomStepUI;
     // End of variables declaration//GEN-END:variables
 }

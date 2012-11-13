@@ -6,13 +6,12 @@ package com.tckb.audio.ui.display;
 
 import com.tckb.audio.part.Label;
 import java.util.ArrayList;
-import javax.swing.JPanel;
 
 /**
  *
  * @author tckb
  */
-public abstract class AudioDisplay extends JPanel {
+public interface AudioDisplay1 {
 
     public static enum TYPE {
 
@@ -40,7 +39,7 @@ public abstract class AudioDisplay extends JPanel {
     abstract public void resetZoom();
 
     abstract public void setCrosshairLen(int crosshairLen);
-    
+
     abstract public void setCrosshairPos(double pos_sec);
 
     abstract public void setLabelAt(String text, double pos_sec);
@@ -59,6 +58,4 @@ public abstract class AudioDisplay extends JPanel {
     abstract public void zoomIn();
 
     abstract public void zoomOut();
-    
-    abstract public void toggleDisplay();
 }

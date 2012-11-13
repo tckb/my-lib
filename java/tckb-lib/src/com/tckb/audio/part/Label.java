@@ -12,7 +12,7 @@ public class Label {
 
     private String text = "";
     private double sample = 0;
-    private int pixel = 0;
+    private Integer currRedix = 0;
 
     public boolean isIsVisible() {
         return isVisible;
@@ -44,11 +44,11 @@ public class Label {
         this.sample = sample;
     }
 
-    public int getPixel() {
-        return pixel;
+    public Integer getCurrRedix() {
+        return currRedix;
     }
 
-    public void setPixel(int pixel) {
-        this.pixel = pixel;
+    public void setCurrRedix(Integer currRedix) {
+        this.currRedix = currRedix;
     }
 }

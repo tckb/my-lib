@@ -4,7 +4,9 @@
  */
 package com.tckb.audio.ui.display.spect;
 
+import com.tckb.audio.part.Label;
 import com.tckb.audio.ui.display.AudioDisplay;
+import java.util.ArrayList;
 
 /**
  *
@@ -95,6 +97,21 @@ public class SpectogramDisplay extends AudioDisplay{
     @Override
     public void zoomOut() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public ArrayList<Label> getAllLabels() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void setCrosshairPos(double pos_sec) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void toggleDisplay() {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
     
 }
