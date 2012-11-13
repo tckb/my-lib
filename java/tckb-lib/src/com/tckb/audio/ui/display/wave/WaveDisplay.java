@@ -14,8 +14,6 @@ import java.awt.geom.Line2D;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.logging.Level;
@@ -201,16 +199,13 @@ public class WaveDisplay extends AudioDisplay {
     public void paintComponent(final Graphics g) {
         super.paintComponent(g);
 
+
         WIN_MAX_HORPX = getWidth();
         WIN_MAX_VERPX = getHeight();
         FONT_CHAR_HEIGHT = g.getFontMetrics().getHeight();
         FONT_CHAR_GAP = getFont().getSize();
 
 
-        WIN_TIME_HEIGHT = WIN_MIN_VERPX + FONT_CHAR_GAP + FONT_CHAR_HEIGHT;
-        CURR_TIME_HEIGHT = WIN_TIME_HEIGHT + FONT_CHAR_HEIGHT;
-        LABEL_HEIGHT = CURR_TIME_HEIGHT + FONT_CHAR_HEIGHT;
-        WAVE_HEIGHT = WIN_MAX_VERPX - LABEL_HEIGHT;
         mylogger.fine("Inside paiting component ");
         adjWvParams(getWidth());
 
@@ -292,7 +287,6 @@ public class WaveDisplay extends AudioDisplay {
             g.setColor(new Color(0x40, 0x45, 0xFF));
             g.setStroke(waveStroke);
 
-//            
             int currWinPxl_redstart = (int) Math.floor((winEnd_sample - winStart_sample) * currPxl / (WvConstant.RED_SAMPLE_256 * maxPixel));
             int currWinPxl_redEnd = (int) Math.floor(((winEnd_sample - winStart_sample) * (currPxl + 1) / (WvConstant.RED_SAMPLE_256 * maxPixel)));
 
@@ -312,17 +306,13 @@ public class WaveDisplay extends AudioDisplay {
             // interpolate tmin & tmax to the current width and height
             int tmin_adj = interpolate(tmin, -1, 1, LABEL_HEIGHT, WAVE_HEIGHT);
             int tmax_adj = interpolate(tmax, -1, 1, LABEL_HEIGHT, WAVE_HEIGHT);
-
-//            if(tmax_adj - tmin_adj >= ( (getHeight() - 10 ) /2 )){
-//                System.out.println("Spurious peak found!");
-//            }
+            
             mylogger.log(Level.FINEST, "Interpolating wavepixels old/new: {0}/{1}, {2}/{3}  ", new Object[]{tmin, tmin_adj, tmax, tmax_adj});
             cachRed.add(new Reduction(tmax_adj, tmin_adj));
 
 
-//            mylogger.log(Level.FINEST, "tmax_adj is safe to render: tmax: {0} <= height/2: {1}   ", new Object[]{tmax_adj, getHeight() / 2});
 //          Condition to avoid spurious peaks
-            if (tmax_adj - tmin_adj < ((WAVE_HEIGHT - LABEL_HEIGHT) / 2)) {
+            if (tmax_adj - tmin_adj < ((WAVE_HEIGHT - LABEL_HEIGHT - 10) / 2)) {
 
 
                 // save current sec for ccrosshair pointer
@@ -342,34 +332,26 @@ public class WaveDisplay extends AudioDisplay {
                     g.draw(new Line2D.Double(currPxl, tmin_adj, currPxl, tmax_adj));
                 }
                 // Paint labels
+
                 for (Label l : labels) {
-                    String text = l.getText();
                     Double sample = l.getSample();
                     int sample_redix = (redNumber(sample) - winStart_Red - 1);
 
 
-                    // if the label is in  current window
-                    if (sample_redix >= currWinPxl_redstart && sample_redix <= currWinPxl_redEnd) {
+                    // if the label is in  crrent window
+                    if (sample_redix >= currWinPxl_redstart && sample_redix <= currWinPxl_redEnd && !l.isIsVisible()) {
 
-
-                        int retl = Collections.binarySearch(labels, l, new Comparator<Label>() {
-                            @Override
-                            public int compare(Label t, Label t1) {
-                                return t.getCurrRedix().compareTo(t1.getCurrRedix());
-
-                            }
-                        });
-
-                        // not found
-//                    if (retl >= 0) {
                         l.setCurrRedix(sample_redix);
 
                         g.setColor(ChartColor.VERY_LIGHT_GREEN);
                         g.draw(new Line2D.Double(currPxl, CURR_TIME_HEIGHT - 5, currPxl, tmax_adj - 1));
                         g.setColor(ChartColor.VERY_DARK_MAGENTA);
                         g.drawString(l.getText(), currPxl + 7, CURR_TIME_HEIGHT + 2);
+                        l.setIsVisible(true);
 
-                        l.setIsVisible(false);
+
+
+
 //                    }
 
                     }
@@ -394,7 +376,6 @@ public class WaveDisplay extends AudioDisplay {
 
 
         while (i <= (2 * crosshairLen) + 1) {
-//            System.out.println("p: "+p);
             if ((p + i) > 0 && (p + i) < maxPixel && (p + i) < cachRed.size()) {
 
 
@@ -433,6 +414,16 @@ public class WaveDisplay extends AudioDisplay {
             }
             i++;
         }
+
+        // Reset label visibility
+
+        for (Label l : labels) {
+            l.setIsVisible(false);
+
+        }
+
+
+
         cachRed.clear();
 
 
@@ -440,6 +431,13 @@ public class WaveDisplay extends AudioDisplay {
 
     public void adjWvParams(int displayWidth) {
         mylogger.info("Adjusting wave constants");
+
+        WIN_TIME_HEIGHT = WIN_MIN_VERPX + FONT_CHAR_GAP + FONT_CHAR_HEIGHT;
+        CURR_TIME_HEIGHT = WIN_TIME_HEIGHT + FONT_CHAR_HEIGHT;
+        LABEL_HEIGHT = CURR_TIME_HEIGHT + FONT_CHAR_HEIGHT;
+        WAVE_HEIGHT = WIN_MAX_VERPX - LABEL_HEIGHT;
+
+
 
         params.PIXEL_COUNT = displayWidth;
         params.TIME_PER_PIXEL = params.DUR_SEC / params.PIXEL_COUNT;
@@ -460,12 +458,6 @@ public class WaveDisplay extends AudioDisplay {
 
         int scale = (int) Math.round((newRangeMax - newRangeMin) / (oldRangeMax - oldRangeMin));
         int newValue = (int) Math.round(newRangeMin + (oldValue - oldRangeMin) * scale);
-
-//        if (newValue >= newRangeMin && newValue < newRangeMax) {
-//            return newValue;
-//        } else {
-//            return 0;
-//        }
 
         return newValue;
     }
@@ -503,7 +495,6 @@ public class WaveDisplay extends AudioDisplay {
                     mylogger.info("crosshair position Last window reached");
                     samples = 0;
                 }
-//                System.out.println("windowSize_sample: " + windowSize_sample);
 
             } else {
                 samples = windowSize_sample;
@@ -513,7 +504,6 @@ public class WaveDisplay extends AudioDisplay {
             winEnd_sample += samples;
             currPlay_sample = pos_sample;
 
-//            System.out.println("p:" + pos_sec + ":s:" + winStart_sample + ":" + winEnd_sample);
             repaint();
         }
 
@@ -522,11 +512,6 @@ public class WaveDisplay extends AudioDisplay {
     }
 
     private int redNumber(double sample) {
-
-//        double s = interpolate(pos_sample, 0, params.DUR_SEC * params.SRATE, winStart_sample, winEnd_sample);
-
-
-        // double pos_sample = (s > (10 * params.SRATE)) ? (s - (10 * params.SRATE)) : s;
         return ((int) Math.floor(sample / 256));
     }
 
@@ -545,6 +530,7 @@ public class WaveDisplay extends AudioDisplay {
         if (text != null) {
             double pos_sample = pos_sec * params.SRATE;
             labels.add(new Label(text, pos_sample));
+
         }
 
 
@@ -611,15 +597,17 @@ public class WaveDisplay extends AudioDisplay {
 
     @Override
     public void setCrosshairPos(double pos_sec) {
-        mylogger.log(Level.INFO, "Setting crosshair position at : {0} sec", new Object[]{pos_sec});
 
-        double pos_sample = pos_sec * params.SRATE;
-
-
-
-
-        winStart_sample = Math.floor(pos_sample / 2);
-        winEnd_sample += windowSize_sample;
+        throw new UnsupportedOperationException("Not yet implemented");
+//        mylogger.log(Level.INFO, "Setting crosshair position at : {0} sec", new Object[]{pos_sec});
+//
+//        double pos_sample = pos_sec * params.SRATE;
+//
+//
+//
+//
+//        winStart_sample = Math.floor(pos_sample / 2);
+//        winEnd_sample += windowSize_sample;
     }
 
     @Override

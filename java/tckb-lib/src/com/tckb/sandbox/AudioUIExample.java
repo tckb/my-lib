@@ -346,7 +346,7 @@ public class AudioUIExample extends javax.swing.JFrame {
 
     private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
         if (!currPos.getText().isEmpty()) {
-            myAudio.getDisplay(AudioDisplay.TYPE.WAVEFORM).updateCrosshairPosition(Double.parseDouble(currPos.getText()));
+            myAudio.getDisplay(AudioDisplay.TYPE.WAVEFORM).setCrosshairPos(Double.parseDouble(currPos.getText()));
             myAudio.getDisplay(AudioDisplay.TYPE.WAVEFORM).refreshDisplay();
 
         }
