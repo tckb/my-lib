@@ -339,7 +339,7 @@ public class WaveDisplay extends AudioDisplay {
 
 
                     // if the label is in  crrent window
-                    if (sample_redix >= currWinPxl_redstart && sample_redix <= currWinPxl_redEnd && !l.isIsVisible()) {
+                    if (sample_redix >= currWinPxl_redstart && sample_redix <= currWinPxl_redEnd && !l.isVisible()) {
 
                         l.setCurrRedix(sample_redix);
 
@@ -347,7 +347,7 @@ public class WaveDisplay extends AudioDisplay {
                         g.draw(new Line2D.Double(currPxl, CURR_TIME_HEIGHT - 5, currPxl, tmax_adj - 1));
                         g.setColor(ChartColor.VERY_DARK_MAGENTA);
                         g.drawString(l.getText(), currPxl + 7, CURR_TIME_HEIGHT + 2);
-                        l.setIsVisible(true);
+                        l.setVisible(true);
 
 
 
@@ -382,6 +382,10 @@ public class WaveDisplay extends AudioDisplay {
                 double max = cachRed.get((p + i)).getMax();
                 double min = cachRed.get((p + i)).getMin();
 
+              if((max-min)<((WAVE_HEIGHT - LABEL_HEIGHT - 10) / 2)){
+                  
+              
+                
                 // crosshair-length 
                 g.setStroke(waveStroke);
                 g.setColor(ChartColor.VERY_DARK_BLUE);
@@ -412,13 +416,14 @@ public class WaveDisplay extends AudioDisplay {
 
 
             }
+        }
             i++;
         }
 
         // Reset label visibility
 
         for (Label l : labels) {
-            l.setIsVisible(false);
+            l.setVisible(false);
 
         }
 
@@ -611,7 +616,13 @@ public class WaveDisplay extends AudioDisplay {
     }
 
     @Override
-    public void toggleDisplay() {
+    public boolean toggleDisplay() {
         displayPixels = !displayPixels;
+        return displayPixels;
+    }
+
+    @Override
+    public void setDisplayInfo(String info) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 }

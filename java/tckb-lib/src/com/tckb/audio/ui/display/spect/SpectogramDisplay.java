@@ -109,9 +109,17 @@ public class SpectogramDisplay extends AudioDisplay{
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
+  
+
     @Override
-    public void toggleDisplay() {
+    public boolean toggleDisplay() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
+
+    @Override
+    public void setDisplayInfo(String info) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
     
 }

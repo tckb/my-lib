@@ -309,14 +309,14 @@ public class WaveDisplay1 extends JPanel implements AudioDisplay1 {
                     Double sample = l.getSample();
                     int sample_redix = (redNumber(sample) - winStart_Red - 1);
                     if (sample_redix >= currWinPxl_redstart && sample_redix <= currWinPxl_redEnd) {
-//                    if (!l.isIsVisible()) {
+//                    if (!l.isVisible()) {
                         l.setCurrRedix(currPxl);
                         g.setColor(ChartColor.VERY_LIGHT_GREEN);
                         g.draw(new Line2D.Double(l.getCurrRedix(), 50, l.getCurrRedix(), getHeight() - 50));
                         g.setColor(ChartColor.VERY_LIGHT_YELLOW);
 
                         g.drawString(l.getText(), l.getCurrRedix() + 5, getHeight() - 50);
-                        l.setIsVisible(true);
+                        l.setVisible(true);
 //                    }
 
 
@@ -533,10 +533,12 @@ public class WaveDisplay1 extends JPanel implements AudioDisplay1 {
 
     }
 
+    @Override
     public ArrayList<Label> getAllLabels() {
         return labels;
     }
 
+    @Override
     public void setCrosshairPos(double pos_sec) {
         mylogger.log(Level.INFO, "Setting crosshair position at : {0} sec", new Object[]{pos_sec});
 

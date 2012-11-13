@@ -14,14 +14,14 @@ public class Label {
     private double sample = 0;
     private Integer currRedix = 0;
 
-    public boolean isIsVisible() {
-        return isVisible;
+    public boolean isVisible() {
+        return visible;
     }
 
-    public void setIsVisible(boolean isVisible) {
-        this.isVisible = isVisible;
+    public void setVisible(boolean visible) {
+        this.visible = visible;
     }
-    private boolean isVisible = false;
+    private boolean visible = false;
 
     public Label(String text, double sample) {
         this.text = text;

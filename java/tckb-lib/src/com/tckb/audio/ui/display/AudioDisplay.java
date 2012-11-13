@@ -60,5 +60,7 @@ public abstract class AudioDisplay extends JPanel {
 
     abstract public void zoomOut();
     
-    abstract public void toggleDisplay();
+    abstract public boolean toggleDisplay();
+    
+    abstract public void setDisplayInfo(String info);
 }
