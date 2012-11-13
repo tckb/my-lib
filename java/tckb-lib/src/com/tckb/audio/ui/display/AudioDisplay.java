@@ -40,7 +40,7 @@ public abstract class AudioDisplay extends JPanel {
     abstract public void resetZoom();
 
     abstract public void setCrosshairLen(int crosshairLen);
-    
+
     abstract public void setCrosshairPos(double pos_sec);
 
     abstract public void setLabelAt(String text, double pos_sec);
@@ -59,8 +59,28 @@ public abstract class AudioDisplay extends JPanel {
     abstract public void zoomIn();
 
     abstract public void zoomOut();
-    
+
     abstract public boolean toggleDisplay();
-    
+
     abstract public void setDisplayInfo(String info);
+
+    abstract public boolean toggleLabels();
+
+    abstract public boolean toggleInfo();
+
+    abstract public boolean toggleCrosshair();
+
+    abstract public boolean toggleWindowInfo();
+
+    abstract public Label getLabelAtXY(int x, int y);
+
+    abstract public void setLabelAtXY(Label l, int x, int y);
+
+    abstract public void highLightLabel(Label l);
+
+    abstract public void showCursorAt(int x, int y);
+
+    abstract public void showCursor(boolean b);
+    
+    abstract public void editLabels(boolean b);
 }

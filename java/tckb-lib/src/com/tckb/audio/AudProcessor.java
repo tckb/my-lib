@@ -9,7 +9,7 @@ import com.tckb.audio.part.Block;
 import com.tckb.audio.part.Block.Reduction;
 import com.tckb.audio.ui.display.AudioDisplay;
 import com.tckb.audio.ui.display.wave.WaveDisplay;
-import com.tckb.audio.ui.display.wave.WvConstant;
+import com.tckb.audio.ui.display.wave.WvParams;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.logging.Level;
@@ -30,13 +30,13 @@ public class AudProcessor {
     private int fullBlocks;
     private Block[] cachedData;
     private NonTrivialAudio audio;
-    private WvConstant wvParams;
+    private WvParams wvParams;
     private int channel;
     private double globalMax;
 
     private AudProcessor(NonTrivialAudio audio, int ch) throws ChannelNotFoundException {
         this.audio = audio;
-        wvParams = new WvConstant();
+        wvParams = new WvParams();
         channel = ch;
         cachedData = processAudio();
 
@@ -75,19 +75,19 @@ public class AudProcessor {
         int bCnt = 0;
         Reduction cRed;
 
-        for (int s = 0; bCnt < wvParams.BLOCK_COUNT; s += WvConstant.BLOCK_16K_SAMPLE) {
+        for (int s = 0; bCnt < wvParams.BLOCK_COUNT; s += WvParams.BLOCK_16K_SAMPLE) {
             mylogger.log(Level.FINE, "Filling block:{0}", bCnt);
 
-            int sampleCount = (bCnt < wvParams.BLOCK_COUNT - 1) ? WvConstant.BLOCK_16K_SAMPLE : lastBlockRedCount * WvConstant.RED_SAMPLE_256;
+            int sampleCount = (bCnt < wvParams.BLOCK_COUNT - 1) ? WvParams.BLOCK_16K_SAMPLE : lastBlockRedCount * WvParams.RED_SIZE_SAMPLE;
             mylogger.log(Level.FINE, "Sample count: {0}", sampleCount);
 
 //            emptyBlock = new Block(sampleCount);
 
-            for (int k = 0; k < sampleCount; k += WvConstant.RED_SAMPLE_256) {
-                //     mylogger.info(sampleCount%RED_SAMPLE_256);
+            for (int k = 0; k < sampleCount; k += WvParams.RED_SIZE_SAMPLE) {
+                //     mylogger.info(sampleCount%RED_SIZE_SAMPLE);
 
-//                cRed = computeReduction(normAudData, s + k, WvConstant.RED_SAMPLE_256);
-                cRed = computeReduction(audioData, s + k, WvConstant.RED_SAMPLE_256);
+//                cRed = computeReduction(normAudData, s + k, WvParams.RED_SIZE_SAMPLE);
+                cRed = computeReduction(audioData, s + k, WvParams.RED_SIZE_SAMPLE);
                 wvParams.wavData.add(cRed);
 //
 //                if (!emptyBlock.put(cRed)) {
@@ -140,14 +140,14 @@ public class AudProcessor {
         srate = audio.getSampleRate();
         wvParams.SRATE = srate;
 
-        lastBlockSampleCount = wvParams.SAMPLE_COUNT % WvConstant.BLOCK_16K_SAMPLE;
-        lastBlockRedCount = lastBlockSampleCount / WvConstant.RED_SAMPLE_256; // discard the remaining samples!
-        fullBlocks = wvParams.SAMPLE_COUNT / WvConstant.BLOCK_16K_SAMPLE;
+        lastBlockSampleCount = wvParams.SAMPLE_COUNT % WvParams.BLOCK_16K_SAMPLE;
+        lastBlockRedCount = lastBlockSampleCount / WvParams.RED_SIZE_SAMPLE; // discard the remaining samples!
+        fullBlocks = wvParams.SAMPLE_COUNT / WvParams.BLOCK_16K_SAMPLE;
         wvParams.BLOCK_COUNT = (lastBlockSampleCount != 0) ? (fullBlocks + 1) : fullBlocks;
-        wvParams.ADJ_SAMPLE_COUNT = (fullBlocks * WvConstant.BLOCK_16K_SAMPLE) + lastBlockRedCount * WvConstant.RED_SAMPLE_256; // adjusting the sample count
+        wvParams.ADJ_SAMPLE_COUNT = (fullBlocks * WvParams.BLOCK_16K_SAMPLE) + lastBlockRedCount * WvParams.RED_SIZE_SAMPLE; // adjusting the sample count
         wvParams.DUR_MS = audio.getDurationInMS();
         wvParams.DUR_SEC = audio.getDurationInSeconds();
-        wvParams.RED_COUNT = fullBlocks * (WvConstant.BLOCK_16K_SAMPLE / WvConstant.RED_SAMPLE_256) + lastBlockRedCount;
+        wvParams.RED_COUNT = fullBlocks * (WvParams.BLOCK_16K_SAMPLE / WvParams.RED_SIZE_SAMPLE) + lastBlockRedCount;
 
 
 

@@ -4,11 +4,11 @@
  */
 package com.tckb.audio.part;
 
-import com.tckb.audio.ui.display.wave.WvConstant;
+import com.tckb.audio.ui.display.wave.WvParams;
 
 /**
  *
- * @author ctungathur mport static com.lia.core.wave.WvConstant.RED_SAMPLE_256;
+ * @author ctungathur mport static com.lia.core.wave.WvParams.RED_SIZE_SAMPLE;
  *
  * /**
  */
@@ -20,7 +20,7 @@ public class Block {
     public Block(int size) {
 
 
-        redList = new Reduction[getNext(size, WvConstant.RED_SAMPLE_256)];
+        redList = new Reduction[getNext(size, WvParams.RED_SIZE_SAMPLE)];
         redCnt = 0;
 
 
@@ -59,7 +59,7 @@ public class Block {
     }
 
     public int getSize() {
-        return redCnt * WvConstant.RED_SAMPLE_256;
+        return redCnt * WvParams.RED_SIZE_SAMPLE;
     }
 
     private int getNext(int a, int b) {
@@ -73,7 +73,7 @@ public class Block {
 
     @Override
     public String toString() {
-        return "[id=" + hashCode() + " RedCount =" + redCnt + " RedSize=" + WvConstant.RED_SAMPLE_256 + "]";
+        return "[id=" + hashCode() + " RedCount =" + redCnt + " RedSize=" + WvParams.RED_SIZE_SAMPLE + "]";
     }
 
     public static class Reduction {

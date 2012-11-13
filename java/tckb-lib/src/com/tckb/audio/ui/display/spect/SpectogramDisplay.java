@@ -12,7 +12,7 @@ import java.util.ArrayList;
  *
  * @author tckb
  */
-public class SpectogramDisplay extends AudioDisplay{
+public class SpectogramDisplay extends AudioDisplay {
 
     @Override
     public int clearAllLabels() {
@@ -109,8 +109,6 @@ public class SpectogramDisplay extends AudioDisplay{
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-  
-
     @Override
     public boolean toggleDisplay() {
         throw new UnsupportedOperationException("Not supported yet.");
@@ -121,5 +119,53 @@ public class SpectogramDisplay extends AudioDisplay{
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    
+    @Override
+    public boolean toggleLabels() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public boolean toggleInfo() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public boolean toggleCrosshair() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public boolean toggleWindowInfo() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public Label getLabelAtXY(int x, int y) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void highLightLabel(Label l) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void setLabelAtXY(Label l, int x, int y) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void showCursorAt(int x, int y) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void showCursor(boolean b) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void editLabels(boolean b) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 }

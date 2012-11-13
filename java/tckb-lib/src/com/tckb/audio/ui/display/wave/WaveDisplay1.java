@@ -30,7 +30,7 @@ public class WaveDisplay1 extends JPanel implements AudioDisplay1 {
 
     private static final Logger mylogger = Logger.getLogger("com.tckb.audio.ui");
     private final int h = 0;
-    private WvConstant params;
+    private WvParams params;
     private double winStart_sample = 0;
     private double winEnd_sample;
     private double currPlay_sample;
@@ -140,7 +140,7 @@ public class WaveDisplay1 extends JPanel implements AudioDisplay1 {
      * @param datab
      * @param wvParams
      */
-    public WaveDisplay1(Block[] datab, WvConstant wvParams) {
+    public WaveDisplay1(Block[] datab, WvParams wvParams) {
         mylogger.info("Initializing wave display");
 
         params = wvParams;
@@ -182,8 +182,8 @@ public class WaveDisplay1 extends JPanel implements AudioDisplay1 {
         mylogger.log(Level.FINE, "Maximum pixels available: {0}", maxPixel);
 
         // TODO: Deperecated code!
-        if (params.SAMPLE_PER_PIXEL < WvConstant.RED_SAMPLE_256) {
-            params.SAMPLE_PER_PIXEL = WvConstant.RED_SAMPLE_256;
+        if (params.SAMPLE_PER_PIXEL < WvParams.RED_SIZE_SAMPLE) {
+            params.SAMPLE_PER_PIXEL = WvParams.RED_SIZE_SAMPLE;
         }
         params.RED_PER_PIXEL = round(params.RED_COUNT, params.PIXEL_COUNT);
 
@@ -256,8 +256,8 @@ public class WaveDisplay1 extends JPanel implements AudioDisplay1 {
             g.setStroke(waveStroke);
 
 //            
-            int currWinPxl_redstart = (int) Math.floor((winEnd_sample - winStart_sample) * currPxl / (WvConstant.RED_SAMPLE_256 * maxPixel));
-            int currWinPxl_redEnd = (int) Math.floor(((winEnd_sample - winStart_sample) * (currPxl + 1) / (WvConstant.RED_SAMPLE_256 * maxPixel)));
+            int currWinPxl_redstart = (int) Math.floor((winEnd_sample - winStart_sample) * currPxl / (WvParams.RED_SIZE_SAMPLE * maxPixel));
+            int currWinPxl_redEnd = (int) Math.floor(((winEnd_sample - winStart_sample) * (currPxl + 1) / (WvParams.RED_SIZE_SAMPLE * maxPixel)));
 
 
             double tmin = Integer.MAX_VALUE;
@@ -385,7 +385,7 @@ public class WaveDisplay1 extends JPanel implements AudioDisplay1 {
 
         params.PIXEL_COUNT = displayWidth;
         params.TIME_PER_PIXEL = params.DUR_SEC / params.PIXEL_COUNT;
-        params.TIME_PER_RED = params.DUR_SEC / WvConstant.RED_SAMPLE_256;  // pos_sample per say, 256 samples
+        params.TIME_PER_RED = params.DUR_SEC / WvParams.RED_SIZE_SAMPLE;  // pos_sample per say, 256 samples
         params.TIME_PER_SAMPLE = params.DUR_SEC / params.ADJ_SAMPLE_COUNT; // use the adjusted value instead of original pos_sample count
         params.SAMPLE_PER_PIXEL = params.ADJ_SAMPLE_COUNT / params.PIXEL_COUNT;
 
