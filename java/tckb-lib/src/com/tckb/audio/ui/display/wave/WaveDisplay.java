@@ -5,18 +5,16 @@ import com.tckb.audio.part.Block.Reduction;
 import com.tckb.audio.part.Label;
 import com.tckb.audio.ui.display.AudioDisplay;
 import com.tckb.borrowed.jfreechart.ChartColor;
+import com.tckb.util.Utility;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.geom.Line2D;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.ejml.ops.CommonOps;
@@ -263,19 +261,19 @@ public class WaveDisplay extends AudioDisplay {
         float w = 0;
         w = 0.5f;
         //        if(windowSize_sec >=2 && windowSize_sec <4){
-                //            w=3f;
-                //        }if(windowSize_sec <2){
-                //            w=1.5f;
-                //        }else{
-                //            w=4f;
-                //        }
-                // Stroke definitions
+        //            w=3f;
+        //        }if(windowSize_sec <2){
+        //            w=1.5f;
+        //        }else{
+        //            w=4f;
+        //        }
+        // Stroke definitions
         BasicStroke waveStroke = new BasicStroke(w, BasicStroke.CAP_ROUND, BasicStroke.JOIN_MITER);
         BasicStroke currPointerStroke = new BasicStroke(3f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
 
 
         // Paint window start 
-        String t1 = Double.toString(adjustDoubleDecimal(winStart_sample / params.SRATE)) + " sec";
+        String t1 = Double.toString(Utility.adjustDoubleDecimal(winStart_sample / params.SRATE)) + " sec";
         // paint string
 
 
@@ -296,7 +294,7 @@ public class WaveDisplay extends AudioDisplay {
 
 
         // Paint window End 
-        String t = Double.toString(adjustDoubleDecimal(winEnd_sample / params.SRATE)) + " sec";
+        String t = Double.toString(Utility.adjustDoubleDecimal(winEnd_sample / params.SRATE)) + " sec";
         int t_width = g.getFontMetrics().stringWidth(t);
         // paint string
         g.drawString(t, WIN_MAX_HORPX - t_width - 1, WIN_MIN_VERPX + FONT_CHAR_GAP);
@@ -304,7 +302,7 @@ public class WaveDisplay extends AudioDisplay {
         g.draw(new Line2D.Double(WIN_MAX_HORPX - 2, WIN_MIN_VERPX + FONT_CHAR_HEIGHT, WIN_MAX_HORPX - 2, WIN_MIN_VERPX + FONT_CHAR_HEIGHT + 3));
 
         // Paint duration
-        g.drawString("Duration: " + Double.toString(adjustDoubleDecimal(params.DUR_SEC)) + " sec", WIN_MAX_HORPX / 2, WIN_MAX_VERPX - 2);
+        g.drawString("Duration: " + Double.toString(Utility.adjustDoubleDecimal(params.DUR_SEC)) + " sec", WIN_MAX_HORPX / 2, WIN_MAX_VERPX - 2);
 
 
         int winStart_Red = redNumber(winStart_sample);
@@ -383,18 +381,20 @@ public class WaveDisplay extends AudioDisplay {
                                 bb_y = CURR_TIME_HEIGHT + 2;
                                 samples = l.getSample();
                                 tmin_adj = (int) Math.floor(cachRed.get(bb_x).getMin());
-                            } else {
+                            } // manual edit!
+                            else {
                                 bb_x = l.getHorzPixel();
                                 bb_y = l.getVertPixel();
                                 // TODO: Bug!!! gives windowed sec !!
-                                samples = (bb_x * windowSize_sample) / WIN_MAX_HORPX;
-
+                                samples = ((winStart_sample + bb_x) * windowSize_sample) / WIN_MAX_HORPX;
+                                l.setSample(samples);
+                                l.sertOverride(false);
 
 
                             }
 
 
-                            String timeText = adjustDoubleDecimal(samples / params.SRATE) + " sec";
+                            String timeText = Utility.adjustDoubleDecimal(samples / params.SRATE) + " sec";
                             int timeTextLen = g.getFontMetrics().stringWidth(timeText);
                             int labelLen = g.getFontMetrics().stringWidth(l.getText());
                             int horLen = (labelLen >= timeTextLen) ? labelLen : timeTextLen;
@@ -494,7 +494,7 @@ public class WaveDisplay extends AudioDisplay {
                         g.draw(new Line2D.Double((p + i), mid + 0.5, (p + i), mid - 0.5));
 
                         // draw string
-                        g.drawString(Double.toString(adjustDoubleDecimal(currPlay_sample / params.SRATE)) + " sec", (p + i) - 5, WIN_TIME_HEIGHT + 2);
+                        g.drawString(Double.toString(Utility.adjustDoubleDecimal(currPlay_sample / params.SRATE)) + " sec", (p + i) - 5, WIN_TIME_HEIGHT + 2);
                         g.setStroke(waveStroke);
                         // draw pointer
                         g.draw(new Line2D.Double((p + i), WIN_TIME_HEIGHT + 2, (p + i), WIN_TIME_HEIGHT + 5));
@@ -674,19 +674,7 @@ public class WaveDisplay extends AudioDisplay {
         return this.windowSize_sample;
     }
 
-    public double adjustDoubleDecimal(double value) {
-        mylogger.log(Level.FINE, "Adjusting valu {0}", new Object[]{value});
-        // Bug fix: 
-//        For german locale 3.333 => 3,33 which would raise an error 
-        DecimalFormatSymbols otherSymbols = new DecimalFormatSymbols(Locale.getDefault());
-        otherSymbols.setDecimalSeparator('.');
-        otherSymbols.setGroupingSeparator(',');
-        // Bug fix
-        DecimalFormat newFormat = new DecimalFormat("#.##", otherSymbols);
-        return Double.valueOf(newFormat.format(value));
-
-    }
-
+   
     @Override
     public ArrayList<Label> getAllLabels() {
         return labels;
@@ -795,6 +783,6 @@ public class WaveDisplay extends AudioDisplay {
     @Override
     public void editLabels(boolean b) {
         this.editingLabel = b;
-//        repaint();
+        repaint();
     }
 }

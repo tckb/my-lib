@@ -4,11 +4,16 @@
  */
 package com.tckb.sandbox;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import com.tckb.audio.NonTrivialAudio;
+import com.tckb.audio.NonTrivialAudio.InvalidChannnelException;
+import com.tckb.util.Utility;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.Timer;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
 
 /**
  *
@@ -16,25 +21,26 @@ import javax.swing.Timer;
  */
 public class TestBed {
 
-    public static void main(String[] args) {
-         javax.swing.Timer t = new Timer(5000, new ActionListener() {
-
-                @Override
-                public void actionPerformed(ActionEvent ae) {
-                    System.out.println("I'm called");
-                }
-            });
-            t.setDelay(5000);
-//            t.setRepeats(false);
-            t.start();
-        
-        
-        
+    public static void main(String[] args) throws InvalidChannnelException {
         try {
-            while(true){
-                
-            }
-            
+            //            NonTrivialAudio audio = new NonTrivialAudio(new File("/Users/tckb/Msc-MI/Thesis/audio@thesis/orig/audiotest_cut.wav"));
+            //
+            //            System.out.println("Audio Header information:"+audio.getHeader());
+            //                public void actionPerformed(ActionEvent ae) {
+            //                    System.out.println("I'm called");
+            //                }
+            //            });
+            //            t.setDelay(5000);
+            ////            t.setRepeats(false);
+            //            t.start();
+            //        
+
+
+            //        try {
+            //            while(true){
+            //                
+            //            }
+            //            
             //        try {
             //            NonTrivialAudio audio = new NonTrivialAudio(new File("/Users/tckb/Msc-MI/Thesis/audio@thesis/orig/audiotest_cut.wav"));
             //
@@ -49,18 +55,18 @@ public class TestBed {
             //            
 
 
-//            File f = Utility.getFileFromUI(null);
-//            final FileChannel channel = new FileInputStream(f).getChannel();
-//            MappedByteBuffer buffer = channel.map(FileChannel.MapMode.READ_ONLY, 0, channel.size());
-//            System.out.println("Buffer size: " + buffer.capacity());
-//            System.out.println("header size: " + new WAVHeader(f.getAbsolutePath()));
-//
-//
-//
-//
-//            // when finished
-//            channel.close();
-//
+            //            File f = Utility.getFileFromUI(null);
+            //            final FileChannel channel = new FileInputStream(f).getChannel();
+            //            MappedByteBuffer buffer = channel.map(FileChannel.MapMode.READ_ONLY, 0, channel.size());
+            //            System.out.println("Buffer size: " + buffer.capacity());
+            //            System.out.println("header size: " + new WAVHeader(f.getAbsolutePath()));
+            //
+            //
+            //
+            //
+            //            // when finished
+            //            channel.close();
+            //
 
 
 
@@ -91,10 +97,50 @@ public class TestBed {
             //        } catch (LineUnavailableException ex) {
             //            Logger.getLogger(TestBed.class.getName()).log(Level.SEVERE, null, ex);
             //        }
-            //        
-        } catch (Exception ex) {
+            //            //        
+            //        } catch (Exception ex) {
+            //            Logger.getLogger(TestBed.class.getName()).log(Level.SEVERE, null, ex);
+            //        }
+            //
+
+            File someFile = Utility.getFileFromUI(null);
+
+
+            final NonTrivialAudio a = new NonTrivialAudio(someFile);
+
+
+//            System.out.println("Reading directly");
+//            long start = System.nanoTime();
+//            double[] data1 = a.getAudioData(1);
+//            long end = System.nanoTime();
+//            System.out.println("Time taken: " + (end - start) / Math.pow(10, 9) + " sec");
+//        
+            new Thread() {
+                @Override
+                public void run() {
+                    try {
+                        System.out.println("Reading fast");
+                        long start = System.nanoTime();
+                        ArrayList<Double[]> data = a.getAudioData_fast2(1);
+                        long end = System.nanoTime();
+                        System.out.println("Time taken: " + (end - start) / Math.pow(10, 9) + " sec");
+                    } catch (InvalidChannnelException ex) {
+                        Logger.getLogger(TestBed.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            }.start();
+
+
+        } catch (IOException ex) {
+            Logger.getLogger(TestBed.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (UnsupportedAudioFileException ex) {
+            Logger.getLogger(TestBed.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (LineUnavailableException ex) {
             Logger.getLogger(TestBed.class.getName()).log(Level.SEVERE, null, ex);
         }
+
+
+
 
 
 

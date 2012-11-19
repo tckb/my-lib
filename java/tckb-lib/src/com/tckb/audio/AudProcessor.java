@@ -4,7 +4,7 @@
  */
 package com.tckb.audio;
 
-import com.tckb.audio.NonTrivialAudio.ChannelNotFoundException;
+import com.tckb.audio.NonTrivialAudio.InvalidChannnelException;
 import com.tckb.audio.part.Block;
 import com.tckb.audio.part.Block.Reduction;
 import com.tckb.audio.ui.display.AudioDisplay;
@@ -34,7 +34,7 @@ public class AudProcessor {
     private int channel;
     private double globalMax;
 
-    private AudProcessor(NonTrivialAudio audio, int ch) throws ChannelNotFoundException {
+    private AudProcessor(NonTrivialAudio audio, int ch) throws InvalidChannnelException {
         this.audio = audio;
         wvParams = new WvParams();
         channel = ch;
@@ -42,7 +42,7 @@ public class AudProcessor {
 
     }
 
-    public static AudProcessor createProcessor(NonTrivialAudio audio, int ch) throws ChannelNotFoundException {
+    public static AudProcessor createProcessor(NonTrivialAudio audio, int ch) throws InvalidChannnelException {
 
         return new AudProcessor(audio, ch);
 
@@ -50,19 +50,19 @@ public class AudProcessor {
 
     // TODO: Clean this mess up!
     // this assumes that the size of each sample is 16 bits
-    public final Block[] processAudio() throws ChannelNotFoundException {//, int displayWidth) {
+    public final Block[] processAudio() throws InvalidChannnelException {//, int displayWidth) {
 
         // Independent Variables: Constants
-        int[] origDataSamples = audio.getAudioData_fast(channel); // get the first channel
-
+        double[] origDataSamples = audio.getAudioData_fast(channel); // get the first channel
+        System.out.println("Data read!");
         DenseMatrix64F audioData = new DenseMatrix64F(1, origDataSamples.length);
         for (int j = 0; j < origDataSamples.length; j++) {
-            audioData.set(0, j, (double) origDataSamples[j]);
+            audioData.set(0, j, origDataSamples[j]);
         }
 
-        globalMax = CommonOps.elementMax(audioData);
+//        globalMax = CommonOps.elementMax(audioData);
 
-
+        globalMax = 1;
 
 //        CommonOps.divide(CommonOps.elementMax(audioData), audioData);
 

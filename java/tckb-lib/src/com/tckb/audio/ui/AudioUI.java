@@ -69,7 +69,7 @@ public class AudioUI extends Observable {
         defaultObserver.addSeeker(aud_seeker_slid);
     }
 
-    public void setUIWvContainer(JScrollPane aContainer) {
+    public void setDisplayContainer(JScrollPane aContainer) {
         defaultObserver.addContainer(aContainer);
     }
 
@@ -384,7 +384,7 @@ public class AudioUI extends Observable {
                 case WAVEFORM:
                     return wavPanel;
 
-                case SPECTOGRAM:
+                case SPECTROGRAM:
                     return spectPanel;
                 default:
                     return null;

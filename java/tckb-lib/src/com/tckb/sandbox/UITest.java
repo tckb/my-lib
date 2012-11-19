@@ -24,7 +24,7 @@ public class UITest extends javax.swing.JFrame {
     public UITest() {
         initComponents();
         ai.setUIPlay(jButton2);
-        ai.setUIWvContainer(jScrollPane1);
+        ai.setDisplayContainer(jScrollPane1);
 
     }
 
