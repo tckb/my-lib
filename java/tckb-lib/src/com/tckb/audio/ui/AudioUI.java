@@ -114,7 +114,7 @@ public class AudioUI extends Observable {
                     audio = new NonTrivialAudio((File) audioFile);
                     audLenMS = audio.getDurationInMS();
 
-                    aProcesor = AudProcessor.createProcessor(audio, 0);
+                    aProcesor = AudProcessor.createProcessor(audio, 1);
 
 //                    isTranscriptAvailable = false;
 

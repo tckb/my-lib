@@ -4,7 +4,6 @@
  */
 package com.tckb.sandbox;
 
-
 import com.tckb.util.cmd.GenericCmdLogObserver;
 import com.tckb.util.cmd.GenericCmdv2;
 import java.util.Observable;
@@ -28,14 +27,14 @@ public class GenericCmdExample extends Observable {
 //            testPM.setCommand("notepad");
 //            testPM.runCommand();
 //            
-            
+
             GenericCmdv2 testPM2 = new GenericCmdv2("java-run");
-            
+
             GenericCmdLogObserver defaultObserver = testPM2.enableDefaultObserver();
-            defaultObserver.attachMethodCallWithParams(GenericCmdExample.class.getName(), "giveMe", new Integer(10),new Double(5.55));
-            defaultObserver.attachMethodCallWithParams(GenericCmdExample.class.getName(), "sayHello");  
+            defaultObserver.attachMethodCallWithParams(GenericCmdExample.class.getName(), "sayHello");
+            defaultObserver.attachMethodCallWithParams(GenericCmdExample.class.getName(), "eat", new Integer(10), new Double(5.55), "croissant");
             defaultObserver.attachMethodCall(GenericCmdExample.class.getName(), "sayGoodBye");
-           // defaultObserver.attachMethodCallWithParams(main.class.getName(), "test");
+            // defaultObserver.attachMethodCallWithParams(main.class.getName(), "test");
             testPM2.setCommand("java");
             testPM2.addFlag("jar", "/Users/tckb/Desktop/Junk/Text2XCAS.jar");
             testPM2.runCommand(false);
@@ -46,17 +45,16 @@ public class GenericCmdExample extends Observable {
         }
 
     }
-    
-    
-    public void giveMe(Integer num, Double b){
-        System.out.println("I got num : "+num+" and double: "+b);
+
+    public void eat(Integer num, Double b, String text) {
+        System.out.println("Eating demon ate a " + "num : " + num + " a double: " + b + " and text: " + text);
     }
-    public void sayHello(){
-        System.out.println("Hello World!");
+
+    public void sayHello() {
+        System.out.println("Eating demon says Hello!");
     }
-    public void sayGoodBye(){
-       System.out.println("Good bye!");
+
+    public void sayGoodBye() {
+        System.out.println("Eating demon says Bye bye!");
     }
-    
-    
 }

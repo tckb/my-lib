@@ -26,6 +26,12 @@ import javax.swing.text.JTextComponent;
  */
 public class Utility {
 
+    // Public Meta-Inf
+    public final static String About = " Utility toolbox";
+    public final static String Ver = "0.1 - beta";
+    public final static String Author = "Chandra Tungathurthi";
+
+    
     // Public constants
     public final static String WORD_BREAK = " ";
     public final static String LINE_BREAK = System.getProperty("line.separator");
@@ -35,8 +41,15 @@ public class Utility {
     public final static String J_CLSPTH = System.getProperty("java.class.path");
     public final static String USER_HME = System.getProperty("user.home");
     public final static String USER_DIR = System.getProperty("user.dir");
+    /**
+     *  Available computing power in terms of available processors
+     */
+    public final static int compCores = Runtime.getRuntime().availableProcessors();
+    
     public final static FileNameExtensionFilter wavFileFilter = new FileNameExtensionFilter("(*.wav) Microsoft Wave files", "wav");
     public final static FileNameExtensionFilter txtFileFilter = new FileNameExtensionFilter("(*.txt ) Text files", "txt");
+    
+    // Private stuff
     private static final Logger mylogger = Logger.getLogger("com.lia.core");
 
     private static void copy12(File file1, File file2) {
@@ -56,6 +69,9 @@ public class Utility {
 
     }
 
+    
+    // Static methods 
+    
     /**
      *
      * @param fromFile
@@ -93,9 +109,7 @@ public class Utility {
                 mylogger.log(Level.SEVERE, "Something went wrong; error while copying: ", ex);
             }
         }
-
         return null;
-
 
     }
 
@@ -390,19 +404,84 @@ public class Utility {
         otherSymbols.setDecimalSeparator('.');
         otherSymbols.setGroupingSeparator(',');
         // Bug fix
-        DecimalFormat newFormat = new DecimalFormat("#.###", otherSymbols);
+        DecimalFormat newFormat = new DecimalFormat("####0.00", otherSymbols);
         return Double.valueOf(newFormat.format(value));
 
     }
-    
-   
-    
+
+    public static long tic() {
+        return System.nanoTime();
+    }
+
+    public static double toc(long tic) {
+        return (double) (tic() - tic) / Math.pow(10, 9);
+    }
+
+    public static String toFormatedTimeString(int milliseconds) {
+
+
+        return new TimeConvertor().split(milliseconds);
+    }
 
     private Utility() {
     }
 
+    public static class TimeConvertor extends org.jdesktop.beansbinding.Converter<String, String> {
+
+        @Override
+        public String convertForward(String value) {
+            String[] values = value.split(":");
+            int current = Integer.parseInt(values[0]);
+            int duration = Integer.parseInt(values[1]);
+            String curr = split(current);
+            String dura = split(duration);
+            return curr + " / " + dura;
+
+        }
+
+        @Override
+        public String convertReverse(String value) {
+            throw new UnsupportedOperationException("There is no reverse convert!");
+        }
+
+        public String split(int current) {
+            int hh = 0;
+            int mm = 0;
+            int ss = 0;
+            StringBuilder out = new StringBuilder();
+            ss = Math.round(current / 1000);
+            if (ss >= 60) { // more than 60 secs
+                mm = Math.round(ss / 60);
+                ss = Math.round(ss % 60);
+                if (mm >= 60) // more than 60 mins
+                {
+                    hh = Math.round(mm / 60);
+                    mm = Math.round(mm % 60);
+                }
+            }
+
+
+            if (hh > 0) {
+                out.append(hh).append(" Hour(s) ");
+            }
+            if (mm > 0) {
+                out.append(mm).append(" Minute(s) ");
+            }
+                out.append(ss).append(" Second(s)");
+            
+
+
+            return out.toString();
+
+        }
+    }
+
     // Shamefully borrowed from Stackoverflow!
     // http://stackoverflow.com/questions/109383/how-to-sort-a-mapkey-value-on-the-values-in-java
+    
+    /**
+     * @author Maxim Veksler
+     */
     public static class MapUtils {
 
         public static int countUniqueValues(Map<String, Integer> map) {

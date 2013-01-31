@@ -1,5 +1,6 @@
 package com.tckb.audio.ui.display.wave;
 
+import com.sun.xml.internal.ws.message.saaj.SAAJHeader;
 import com.tckb.audio.part.Block;
 import com.tckb.audio.part.Block.Reduction;
 import com.tckb.audio.part.Label;
@@ -274,23 +275,16 @@ public class WaveDisplay extends AudioDisplay {
 
         // Paint window start 
         String t1 = Double.toString(Utility.adjustDoubleDecimal(winStart_sample / params.SRATE)) + " sec";
-        // paint string
-
-
         g.drawString(t1, WIN_MIN_HORPX + 1, WIN_MIN_VERPX + FONT_CHAR_GAP);
+
+        // setup  stroke
         g.setStroke(waveStroke);
-        // paint pointer
+        // paint window pointer
         g.draw(new Line2D.Double(WIN_MIN_HORPX + 1, WIN_MIN_VERPX + FONT_CHAR_HEIGHT, WIN_MIN_HORPX + 1, FONT_CHAR_HEIGHT + 3));
 
 
 
 
-        if (showCursor) {
-            g.draw(new Line2D.Double(cursor_x, 0, cursor_x, WIN_MAX_VERPX));
-            g.draw(new Line2D.Double(0, cursor_y, WIN_MAX_HORPX, cursor_y));
-
-
-        }
 
 
         // Paint window End 
@@ -298,11 +292,42 @@ public class WaveDisplay extends AudioDisplay {
         int t_width = g.getFontMetrics().stringWidth(t);
         // paint string
         g.drawString(t, WIN_MAX_HORPX - t_width - 1, WIN_MIN_VERPX + FONT_CHAR_GAP);
-        // paint pointer
+        // paint window pointer
         g.draw(new Line2D.Double(WIN_MAX_HORPX - 2, WIN_MIN_VERPX + FONT_CHAR_HEIGHT, WIN_MAX_HORPX - 2, WIN_MIN_VERPX + FONT_CHAR_HEIGHT + 3));
 
-        // Paint duration
-        g.drawString("Duration: " + Double.toString(Utility.adjustDoubleDecimal(params.DUR_SEC)) + " sec", WIN_MAX_HORPX / 2, WIN_MAX_VERPX - 2);
+
+
+
+
+        // Paint display info
+        String durInfo = Double.toString(Utility.adjustDoubleDecimal(params.DUR_SEC)) + " sec";
+        String cursorInfo;
+
+
+
+        if (showCursor) {
+//            double curSample = ((winStart_sample + cursor_x) * windowSize_sample) / WIN_MAX_HORPX;
+            double curSample = (winStart_sample + cursor_x * (windowSize_sample / WIN_MAX_HORPX));
+
+
+            cursorInfo = Double.toString(Utility.adjustDoubleDecimal(curSample / params.SRATE)) + " sec";
+
+        } else {
+            cursorInfo = " ~ ";
+
+        }
+
+        String resolInfo = Double.toString(Utility.adjustDoubleDecimal(this.windowSize_sec)) + " sec";
+
+
+        // calc width of the text
+        int dinfo_width = g.getFontMetrics().stringWidth(durInfo + cursorInfo + resolInfo) + 5;
+        int x = WIN_MAX_HORPX / 2;
+        int y = WIN_MAX_VERPX - 2;
+        g.setColor(ChartColor.VERY_DARK_BLUE);
+        g.drawString("Crsr Pos: " + cursorInfo + " / Total: " + durInfo + " / Resltn: " + resolInfo, x - dinfo_width, y);
+
+
 
 
         int winStart_Red = redNumber(winStart_sample);
@@ -386,7 +411,9 @@ public class WaveDisplay extends AudioDisplay {
                                 bb_x = l.getHorzPixel();
                                 bb_y = l.getVertPixel();
                                 // TODO: Bug!!! gives windowed sec !!
-                                samples = ((winStart_sample + bb_x) * windowSize_sample) / WIN_MAX_HORPX;
+//                                samples = ((winStart_sample + bb_x) * windowSize_sample) / WIN_MAX_HORPX;
+//                                samples = ((winStart_sample + bb_x) * windowSize_sample) / WIN_MAX_HORPX;
+                                samples = (winStart_sample + bb_x * (windowSize_sample / WIN_MAX_HORPX));
                                 l.setSample(samples);
                                 l.sertOverride(false);
 
@@ -444,8 +471,26 @@ public class WaveDisplay extends AudioDisplay {
 
                     }
                 }
-
-
+//
+//                if (showCursor) {
+//
+//
+//                    int cur_Redix = (redNumber(curSample) - winStart_Red - 1);
+//                    Reduction r = params.wavData.get(cur_Redix);
+//                    double max = r.getMax();
+//                    double min = r.getMin();
+//
+//                    int min_adj = interpolate(min, - 1, 1, LABEL_HEIGHT, WAVE_HEIGHT);
+//                    int max_adj = interpolate(max, -1, 1, LABEL_HEIGHT, WAVE_HEIGHT);
+//
+//                    g.draw(new Line2D.Double(cursor_x, min_adj, cursor_x, max_adj));
+//
+//
+//
+//
+//
+//
+//                }
 
 
 
@@ -453,6 +498,19 @@ public class WaveDisplay extends AudioDisplay {
             }
 
             currPxl++;
+
+
+
+            if (showCursor) {
+                // horizontal line
+                g.setColor(ChartColor.BLACK);
+                g.draw(new Line2D.Double(cursor_x, LABEL_HEIGHT, cursor_x, WIN_MAX_VERPX - FONT_CHAR_HEIGHT - 2));
+                // vertical line
+//            g.draw(new Line2D.Double(0, cursor_y, WIN_MAX_HORPX, cursor_y));
+
+
+            }
+
 
         }
 
@@ -518,7 +576,14 @@ public class WaveDisplay extends AudioDisplay {
         }
 
 
-        System.out.println("Curr labels:" + currWinLabel.size());
+
+
+
+
+
+
+
+//        System.out.println("Curr labels:" + currWinLabel.size());
 
         cachRed.clear();
 
@@ -674,7 +739,6 @@ public class WaveDisplay extends AudioDisplay {
         return this.windowSize_sample;
     }
 
-   
     @Override
     public ArrayList<Label> getAllLabels() {
         return labels;

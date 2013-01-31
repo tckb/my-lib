@@ -7,9 +7,9 @@ package com.tckb.sandbox;
 import com.tckb.audio.NonTrivialAudio;
 import com.tckb.audio.NonTrivialAudio.InvalidChannnelException;
 import com.tckb.util.Utility;
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.SortedMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.sound.sampled.LineUnavailableException;
@@ -23,6 +23,7 @@ public class TestBed {
 
     public static void main(String[] args) throws InvalidChannnelException {
         try {
+            //        try {
             //            NonTrivialAudio audio = new NonTrivialAudio(new File("/Users/tckb/Msc-MI/Thesis/audio@thesis/orig/audiotest_cut.wav"));
             //
             //            System.out.println("Audio Header information:"+audio.getHeader());
@@ -32,7 +33,7 @@ public class TestBed {
             //            });
             //            t.setDelay(5000);
             ////            t.setRepeats(false);
-            //            t.start();
+            //        
             //        
 
 
@@ -100,37 +101,76 @@ public class TestBed {
             //            //        
             //        } catch (Exception ex) {
             //            Logger.getLogger(TestBed.class.getName()).log(Level.SEVERE, null, ex);
-            //        }
+            //            //        }
+            //            //
+            //
+//            File someFile = Utility.getFileFromUI(null);
+            //
             //
 
-            File someFile = Utility.getFileFromUI(null);
+            Logger.getLogger("com.tckb.audio").setLevel(Level.INFO);
+
+            final NonTrivialAudio a = new NonTrivialAudio(Utility.getFileFromUI(null));
 
 
-            final NonTrivialAudio a = new NonTrivialAudio(someFile);
+
+//            final NonTrivialAudio a = new NonTrivialAudio(new File("/Users/tckb/Projects/AvaTech/TestData/Ata_01_CE_1_13.wav"));
+
+//
+//            System.out.println("Reading fast2");
+//            long start1 = Utility.tic();
+//            ArrayList<Double[]> data1 = a.getAudioData_fast2(1);
+//            double time1 = Utility.toc(start1);
+//            System.out.println("Time taken: " + time1 + " sec");
+//            System.out.println(data1.size());
 
 
-//            System.out.println("Reading directly");
-//            long start = System.nanoTime();
-//            double[] data1 = a.getAudioData(1);
-//            long end = System.nanoTime();
-//            System.out.println("Time taken: " + (end - start) / Math.pow(10, 9) + " sec");
-//        
-            new Thread() {
-                @Override
-                public void run() {
-                    try {
-                        System.out.println("Reading fast");
-                        long start = System.nanoTime();
-                        ArrayList<Double[]> data = a.getAudioData_fast2(1);
-                        long end = System.nanoTime();
-                        System.out.println("Time taken: " + (end - start) / Math.pow(10, 9) + " sec");
-                    } catch (InvalidChannnelException ex) {
-                        Logger.getLogger(TestBed.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                }
-            }.start();
 
 
+
+
+            System.out.println("Reading fast3");
+            long start2 = Utility.tic();
+            SortedMap<Integer, Double[]> data2 = a.getAudioData_fast3(1);
+            double time = Utility.toc(start2) * 1000;
+            System.out.println("Time taken: " + Utility.toFormatedTimeString((int) time) + " sec");
+            System.out.println(data2.keySet());
+
+//            System.out.println(1+14>>1);
+
+
+
+
+
+            ////        
+            //            new Thread() {
+            //                @Override
+            //                public void run() {
+            //                    try {
+            //                        System.out.println("Reading fast");
+            //                        long start = System.nanoTime();
+            //                        ArrayList<Double[]> data = a.getAudioData_fast2(1);
+            //                        long end = System.nanoTime();
+            //                        System.out.println("Time taken: " + (end - start) / Math.pow(10, 9) + " sec");
+            //                    } catch (InvalidChannnelException ex) {
+            //                        Logger.getLogger(TestBed.class.getName()).log(Level.SEVERE, null, ex);
+            //                    }
+            //                }
+            //            }.start();
+            //
+            //
+            //        } catch (IOException ex) {
+            //            Logger.getLogger(TestBed.class.getName()).log(Level.SEVERE, null, ex);
+            //        } catch (UnsupportedAudioFileException ex) {
+            //            Logger.getLogger(TestBed.class.getName()).log(Level.SEVERE, null, ex);
+            //        } catch (LineUnavailableException ex) {
+            //            Logger.getLogger(TestBed.class.getName()).log(Level.SEVERE, null, ex);
+            //        }
+
+
+
+
+            //        System.out.println(Utility.toFormatedTimeString(1000*60));
         } catch (IOException ex) {
             Logger.getLogger(TestBed.class.getName()).log(Level.SEVERE, null, ex);
         } catch (UnsupportedAudioFileException ex) {
@@ -140,11 +180,6 @@ public class TestBed {
         }
 
 
-
-
-
-
-
-
+        System.out.println("done");
     }
 }
