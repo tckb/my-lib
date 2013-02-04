@@ -1,4 +1,3 @@
-
 package com.tckb.audio.ui.display;
 
 import com.tckb.audio.part.Label;
@@ -11,10 +10,13 @@ import javax.swing.JPanel;
  */
 public abstract class AudioDisplay extends JPanel {
 
+    protected int timePrecs = 2; // 2 digits after decimal point
+
+
     public static enum TYPE {
 
         /**
-         * Waveform display 
+         * Waveform display
          */
         WAVEFORM,
         /**
@@ -24,8 +26,8 @@ public abstract class AudioDisplay extends JPanel {
     };
 
     /**
-     * 
-     * @return 
+     *
+     * @return
      */
     abstract public int clearAllLabels();
 
@@ -92,7 +94,7 @@ public abstract class AudioDisplay extends JPanel {
      *
      * @param pos_sec
      */
-    abstract public void setCrosshairPos(double pos_sec);
+    abstract public void setCursorPos(double pos_sec);
 
     /**
      *
@@ -208,10 +210,25 @@ public abstract class AudioDisplay extends JPanel {
      * @param b
      */
     abstract public void showCursor(boolean b);
-    
+
     /**
      *
      * @param b
      */
     abstract public void editLabels(boolean b);
+
+    /**
+     *
+     * @param sampleOfLabel
+     */
+    abstract public double getLabelTimeStamp(double sampleOfLabel);
+
+    public int getTimePrecision() {
+        return timePrecs;
+    }
+
+    public void setTimePrecision(int digits) {
+        this.timePrecs = digits;
+
+    }
 }

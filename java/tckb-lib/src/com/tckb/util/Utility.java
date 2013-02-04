@@ -5,6 +5,8 @@
 package com.tckb.util;
 
 import java.io.*;
+import java.math.BigDecimal;
+import java.math.MathContext;
 import java.nio.channels.FileChannel;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -14,6 +16,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 import javax.swing.JTextArea;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.BadLocationException;
@@ -30,8 +33,6 @@ public class Utility {
     public final static String About = " Utility toolbox";
     public final static String Ver = "0.1 - beta";
     public final static String Author = "Chandra Tungathurthi";
-
-    
     // Public constants
     public final static String WORD_BREAK = " ";
     public final static String LINE_BREAK = System.getProperty("line.separator");
@@ -42,13 +43,11 @@ public class Utility {
     public final static String USER_HME = System.getProperty("user.home");
     public final static String USER_DIR = System.getProperty("user.dir");
     /**
-     *  Available computing power in terms of available processors
+     * Available computing power in terms of available processors
      */
     public final static int compCores = Runtime.getRuntime().availableProcessors();
-    
     public final static FileNameExtensionFilter wavFileFilter = new FileNameExtensionFilter("(*.wav) Microsoft Wave files", "wav");
     public final static FileNameExtensionFilter txtFileFilter = new FileNameExtensionFilter("(*.txt ) Text files", "txt");
-    
     // Private stuff
     private static final Logger mylogger = Logger.getLogger("com.lia.core");
 
@@ -69,9 +68,7 @@ public class Utility {
 
     }
 
-    
     // Static methods 
-    
     /**
      *
      * @param fromFile
@@ -377,6 +374,24 @@ public class Utility {
 
     }
 
+    public static File saveFileFromUI(JComponent parent) {
+        File f = null;
+        try {
+            JFileChooser jfc = new JFileChooser();
+            jfc.setDialogTitle("Utility: FileSaver");
+            jfc.showSaveDialog(parent);
+            f = jfc.getSelectedFile();
+
+            f.createNewFile();
+
+        } catch (IOException ex) {
+            mylogger.log(Level.SEVERE, "Error: Can not save file: {0}", ex.getMessage());
+        } finally {
+            return f;
+
+        }
+    }
+
     public static File getFileFromUI(JComponent parent, FileNameExtensionFilter filter) {
         JFileChooser jfc = new JFileChooser();
         jfc.addChoosableFileFilter(filter);
@@ -396,7 +411,7 @@ public class Utility {
         }
     }
 
-    public static double adjustDoubleDecimal(double value) {
+    public static double adjDecimalSep(double value) {
         mylogger.log(Level.FINE, "Adjusting valu {0}", new Object[]{value});
         // Bug fix: 
 //        For german locale 3.333 => 3,33 which would raise an error 
@@ -404,8 +419,18 @@ public class Utility {
         otherSymbols.setDecimalSeparator('.');
         otherSymbols.setGroupingSeparator(',');
         // Bug fix
-        DecimalFormat newFormat = new DecimalFormat("####0.00", otherSymbols);
+        DecimalFormat newFormat = new DecimalFormat();
+        newFormat.setDecimalFormatSymbols(otherSymbols);
         return Double.valueOf(newFormat.format(value));
+
+    }
+
+    public static double roundDouble(Double val, int precision) {
+
+        Double dVal = adjDecimalSep(val);
+
+        BigDecimal bigNumber1 = new BigDecimal(dVal, MathContext.UNLIMITED); // dec 64 - > double precision
+        return bigNumber1.setScale(precision, BigDecimal.ROUND_CEILING).doubleValue();
 
     }
 
@@ -467,8 +492,8 @@ public class Utility {
             if (mm > 0) {
                 out.append(mm).append(" Minute(s) ");
             }
-                out.append(ss).append(" Second(s)");
-            
+            out.append(ss).append(" Second(s)");
+
 
 
             return out.toString();
@@ -478,7 +503,6 @@ public class Utility {
 
     // Shamefully borrowed from Stackoverflow!
     // http://stackoverflow.com/questions/109383/how-to-sort-a-mapkey-value-on-the-values-in-java
-    
     /**
      * @author Maxim Veksler
      */
@@ -615,6 +639,55 @@ public class Utility {
              * Resulting sort will be from biggest to smallest.
              */
             DESCENDING
+        }
+    }
+
+    public static class UI {
+
+        public static File openFile() {
+            throw new UnsupportedOperationException("Not yet implemented");
+        }
+
+        public static File getFile(JComponent parent) {
+            JFileChooser jfc = new JFileChooser();
+            jfc.setDialogTitle("Utility: FileChooser");
+            jfc.showOpenDialog(parent);
+
+            return jfc.getSelectedFile();
+
+        }
+
+        public static File saveFile(JComponent parent) {
+            File f = null;
+            try {
+                JFileChooser jfc = new JFileChooser();
+                jfc.setDialogTitle("Utility: FileSaver");
+                jfc.showSaveDialog(parent);
+                f = jfc.getSelectedFile();
+
+                f.createNewFile();
+
+            } catch (IOException ex) {
+                mylogger.log(Level.SEVERE, "Error: Can not save file: {0}", ex.getMessage());
+            } finally {
+                return f;
+
+            }
+        }
+
+        public static File getFile(JComponent parent, FileNameExtensionFilter filter) {
+            JFileChooser jfc = new JFileChooser();
+            jfc.addChoosableFileFilter(filter);
+            jfc.setDialogTitle("Utility: FileChooser");
+            jfc.showOpenDialog(parent);
+
+            return jfc.getSelectedFile();
+
+        }
+
+        public static void showInfoMessage(JComponent parent, String message) {
+            JOptionPane.showMessageDialog(parent, message, "Utility: Info", JOptionPane.INFORMATION_MESSAGE);
+
         }
     }
 }

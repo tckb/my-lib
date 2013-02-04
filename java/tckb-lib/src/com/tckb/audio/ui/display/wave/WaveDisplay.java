@@ -1,6 +1,5 @@
 package com.tckb.audio.ui.display.wave;
 
-import com.sun.xml.internal.ws.message.saaj.SAAJHeader;
 import com.tckb.audio.part.Block;
 import com.tckb.audio.part.Block.Reduction;
 import com.tckb.audio.part.Label;
@@ -59,7 +58,7 @@ public class WaveDisplay extends AudioDisplay {
     private boolean displayCrosshair;
     private boolean displayWinInfo;
     private int cursor_x, cursor_y;
-    private boolean showCursor = true;
+    private boolean showCursor = false;
     private boolean editingLabel;
 
     private void setMAX_ZOOM(double level) {
@@ -159,8 +158,7 @@ public class WaveDisplay extends AudioDisplay {
 
 
 
-        //        }
-//     
+
         repaint();
     }
 
@@ -271,10 +269,11 @@ public class WaveDisplay extends AudioDisplay {
         // Stroke definitions
         BasicStroke waveStroke = new BasicStroke(w, BasicStroke.CAP_ROUND, BasicStroke.JOIN_MITER);
         BasicStroke currPointerStroke = new BasicStroke(3f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
+        BasicStroke labelBBStroke = new BasicStroke(w, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 10f, new float[]{1.0f, 1.0f}, 0.0f); // Dash pattern
 
 
         // Paint window start 
-        String t1 = Double.toString(Utility.adjustDoubleDecimal(winStart_sample / params.SRATE)) + " sec";
+        String t1 = Double.toString(Utility.roundDouble(winStart_sample / params.SRATE, timePrecs)) + " sec";
         g.drawString(t1, WIN_MIN_HORPX + 1, WIN_MIN_VERPX + FONT_CHAR_GAP);
 
         // setup  stroke
@@ -288,7 +287,7 @@ public class WaveDisplay extends AudioDisplay {
 
 
         // Paint window End 
-        String t = Double.toString(Utility.adjustDoubleDecimal(winEnd_sample / params.SRATE)) + " sec";
+        String t = Double.toString(Utility.roundDouble(winEnd_sample / params.SRATE, timePrecs)) + " sec";
         int t_width = g.getFontMetrics().stringWidth(t);
         // paint string
         g.drawString(t, WIN_MAX_HORPX - t_width - 1, WIN_MIN_VERPX + FONT_CHAR_GAP);
@@ -300,7 +299,7 @@ public class WaveDisplay extends AudioDisplay {
 
 
         // Paint display info
-        String durInfo = Double.toString(Utility.adjustDoubleDecimal(params.DUR_SEC)) + " sec";
+        String durInfo = Double.toString(Utility.roundDouble(params.DUR_SEC, timePrecs)) + " sec";
         String cursorInfo;
 
 
@@ -310,14 +309,14 @@ public class WaveDisplay extends AudioDisplay {
             double curSample = (winStart_sample + cursor_x * (windowSize_sample / WIN_MAX_HORPX));
 
 
-            cursorInfo = Double.toString(Utility.adjustDoubleDecimal(curSample / params.SRATE)) + " sec";
+            cursorInfo = Double.toString(Utility.roundDouble(curSample / params.SRATE, timePrecs)) + " sec";
 
         } else {
             cursorInfo = " ~ ";
 
         }
 
-        String resolInfo = Double.toString(Utility.adjustDoubleDecimal(this.windowSize_sec)) + " sec";
+        String resolInfo = Double.toString(Utility.roundDouble(this.windowSize_sec, timePrecs)) + " sec";
 
 
         // calc width of the text
@@ -325,7 +324,7 @@ public class WaveDisplay extends AudioDisplay {
         int x = WIN_MAX_HORPX / 2;
         int y = WIN_MAX_VERPX - 2;
         g.setColor(ChartColor.VERY_DARK_BLUE);
-        g.drawString("Crsr Pos: " + cursorInfo + " / Total: " + durInfo + " / Resltn: " + resolInfo, x - dinfo_width, y);
+        g.drawString("Crsr Pos: " + cursorInfo + " / Total: " + durInfo + " / Showing: " + resolInfo, x - dinfo_width, y);
 
 
 
@@ -410,18 +409,16 @@ public class WaveDisplay extends AudioDisplay {
                             else {
                                 bb_x = l.getHorzPixel();
                                 bb_y = l.getVertPixel();
-                                // TODO: Bug!!! gives windowed sec !!
-//                                samples = ((winStart_sample + bb_x) * windowSize_sample) / WIN_MAX_HORPX;
-//                                samples = ((winStart_sample + bb_x) * windowSize_sample) / WIN_MAX_HORPX;
+
                                 samples = (winStart_sample + bb_x * (windowSize_sample / WIN_MAX_HORPX));
                                 l.setSample(samples);
-                                l.sertOverride(false);
+                                l.setOverride(false);
 
 
                             }
 
 
-                            String timeText = Utility.adjustDoubleDecimal(samples / params.SRATE) + " sec";
+                            String timeText = Utility.roundDouble(samples / params.SRATE, timePrecs) + " sec";
                             int timeTextLen = g.getFontMetrics().stringWidth(timeText);
                             int labelLen = g.getFontMetrics().stringWidth(l.getText());
                             int horLen = (labelLen >= timeTextLen) ? labelLen : timeTextLen;
@@ -437,21 +434,24 @@ public class WaveDisplay extends AudioDisplay {
 
 
                             l.createBoudingBox(); // must be called explictly!
-//                            l.sertOverride(false); // reset!
+//                            l.setOverride(false); // reset!
 
                             g.setColor(ChartColor.VERY_LIGHT_GREEN);
                             // draw line
                             g.draw(new Line2D.Double(bb_x, bb_y - 7, bb_x, tmin_adj - 1));
                             g.draw(new Line2D.Double(bb_x, bb_y - 7, bb_x + 2, bb_y - 7));
 
-                            // draw text
+                            // draw label
                             g.setColor(ChartColor.VERY_DARK_MAGENTA);
-                            g.drawString(l.getText(), bb_x + 7, bb_y);
-                            g.drawString(timeText, bb_x + 7, bb_y + FONT_CHAR_HEIGHT);
+                            g.drawString(l.getText(), bb_x + 7, bb_y); // label - text
+                            g.setColor(ChartColor.VERY_DARK_YELLOW);
+
+                            g.drawString(timeText, bb_x + 7, bb_y + FONT_CHAR_HEIGHT); // label - time
 
 
-                            // draw bb
+                            // draw bounding box
                             if (editingLabel) {
+                                g.setStroke(labelBBStroke);
                                 g.drawRect(l.getHorzPixel(), l.getVertPixel(), l.getHorizLen_inPixels(), l.getVertLen_inPixels());
                             }
 
@@ -472,27 +472,7 @@ public class WaveDisplay extends AudioDisplay {
                     }
                 }
 //
-//                if (showCursor) {
-//
-//
-//                    int cur_Redix = (redNumber(curSample) - winStart_Red - 1);
-//                    Reduction r = params.wavData.get(cur_Redix);
-//                    double max = r.getMax();
-//                    double min = r.getMin();
-//
-//                    int min_adj = interpolate(min, - 1, 1, LABEL_HEIGHT, WAVE_HEIGHT);
-//                    int max_adj = interpolate(max, -1, 1, LABEL_HEIGHT, WAVE_HEIGHT);
-//
-//                    g.draw(new Line2D.Double(cursor_x, min_adj, cursor_x, max_adj));
-//
-//
-//
-//
-//
-//
-//                }
-
-
+//               
 
 
             }
@@ -503,8 +483,8 @@ public class WaveDisplay extends AudioDisplay {
 
             if (showCursor) {
                 // horizontal line
-                g.setColor(ChartColor.BLACK);
-                g.draw(new Line2D.Double(cursor_x, LABEL_HEIGHT, cursor_x, WIN_MAX_VERPX - FONT_CHAR_HEIGHT - 2));
+                g.setColor(ChartColor.VERY_DARK_GREEN);
+                g.draw(new Line2D.Double(cursor_x, LABEL_HEIGHT + 10, cursor_x, WIN_MAX_VERPX - FONT_CHAR_HEIGHT - 2));
                 // vertical line
 //            g.draw(new Line2D.Double(0, cursor_y, WIN_MAX_HORPX, cursor_y));
 
@@ -552,7 +532,7 @@ public class WaveDisplay extends AudioDisplay {
                         g.draw(new Line2D.Double((p + i), mid + 0.5, (p + i), mid - 0.5));
 
                         // draw string
-                        g.drawString(Double.toString(Utility.adjustDoubleDecimal(currPlay_sample / params.SRATE)) + " sec", (p + i) - 5, WIN_TIME_HEIGHT + 2);
+                        g.drawString(Double.toString(Utility.roundDouble(currPlay_sample / params.SRATE, timePrecs)) + " sec", (p + i) - 5, WIN_TIME_HEIGHT + 2);
                         g.setStroke(waveStroke);
                         // draw pointer
                         g.draw(new Line2D.Double((p + i), WIN_TIME_HEIGHT + 2, (p + i), WIN_TIME_HEIGHT + 5));
@@ -634,7 +614,12 @@ public class WaveDisplay extends AudioDisplay {
     }
 
     @Override
-    public void updateCrosshairPosition(double pos_sec) {
+    public void updateCrosshairPosition(double sec) {
+
+        double pos_sec = Utility.roundDouble(sec, timePrecs);
+
+
+
         mylogger.log(Level.FINER, "Updating crosshair position: {0} sec", pos_sec);
         double pos_sample = pos_sec * params.SRATE;
 
@@ -680,7 +665,13 @@ public class WaveDisplay extends AudioDisplay {
     @Override
     public void resetZoom() {
         mylogger.info("Resetting zoom ");
+        // TODO: Caught bug while resetting the zoom at the after finishing the play
         this.setZoomLevel(getMIN_ZOOM());
+
+//        this.setZoomLevel(params.DUR_SEC);
+
+
+
 
     }
 
@@ -689,31 +680,51 @@ public class WaveDisplay extends AudioDisplay {
 
         mylogger.log(Level.INFO, "Setting label: {0} at sec: {1}", new Object[]{text, pos_sec});
 
-        if (text != null) {
-            double pos_sample = pos_sec * params.SRATE;
-            labels.add(new Label(text, pos_sample));
 
-        }
+        double pos_sec_adj = Utility.roundDouble(pos_sec, timePrecs);
+        String labelText = (text != null) ? text : "UNKOWN_LABEL";
 
+
+        double pos_sample = pos_sec_adj * params.SRATE;
+        labels.add(new Label(labelText, pos_sample));
+
+
+//        System.out.println("Adding Label: "+ labelText + "  ts: "+ pos_sec_adj);
 
 
     }
 
+    /**
+     * returns only one label
+     *
+     * @param pos_sec
+     * @return
+     */
     @Override
     public String deleteLabelAt(double pos_sec) {
 
-        double pos_sample = pos_sec * params.SRATE;
+//        double pos_sample = pos_sec * params.SRATE;
 
         String label = "";
         ArrayList<Label> copy = new ArrayList<Label>(labels);
         for (Label l : copy) {
-            if (l.getSample() == pos_sample) {
+
+
+            double labelTimeAdj = Utility.roundDouble(l.getSample() / params.SRATE, timePrecs);
+//            if (l.getSample() == pos_sample) {
+//                label = l.getText();
+//                labels.remove(l);
+//            }
+
+            if (labelTimeAdj == pos_sec) {
+
+                mylogger.log(Level.INFO, "Deleting label: {0} at sec: {1}", new Object[]{l.getText(), labelTimeAdj});
                 label = l.getText();
                 labels.remove(l);
             }
+
         }
         copy = null;
-        mylogger.log(Level.INFO, "Deleting label: {0} at sec: {1}", new Object[]{label, pos_sec});
 
         return label;
 
@@ -745,18 +756,25 @@ public class WaveDisplay extends AudioDisplay {
     }
 
     @Override
-    public void setCrosshairPos(double pos_sec) {
+    public void setCursorPos(double sec) {
 
-        throw new UnsupportedOperationException("Not yet implemented");
-//        mylogger.log(Level.INFO, "Setting crosshair position at : {0} sec", new Object[]{pos_sec});
-//
-//        double pos_sample = pos_sec * params.SRATE;
-//
-//
-//
-//
-//        winStart_sample = Math.floor(pos_sample / 2);
-//        winEnd_sample += windowSize_sample;
+        double pos_sec = Utility.roundDouble(sec, timePrecs);
+
+        if (pos_sec >= params.DUR_SEC) {
+            pos_sec = params.DUR_SEC;
+        } else {
+            if (pos_sec < 0) {
+                pos_sec = 0;
+            }
+        }
+
+        double pos_sample = pos_sec * params.SRATE;
+        winStart_sample = (0 > (pos_sample - windowSize_sample * 0.5)) ? 0 : (pos_sample - windowSize_sample * 0.5);
+        winEnd_sample = winStart_sample + windowSize_sample;
+        currPlay_sample = pos_sample;
+
+        repaint();
+
     }
 
     @Override
@@ -820,7 +838,7 @@ public class WaveDisplay extends AudioDisplay {
     @Override
     public void setLabelAtXY(Label l, int x, int y) {
         if (editingLabel) {
-            l.sertOverride(true); // just a flag
+            l.setOverride(true); // just a flag
             l.setHorzPixel(x);
             l.setVertPixel(y);
             repaint();
@@ -848,5 +866,10 @@ public class WaveDisplay extends AudioDisplay {
     public void editLabels(boolean b) {
         this.editingLabel = b;
         repaint();
+    }
+
+    @Override
+    public double getLabelTimeStamp(double sampleOfLabel) {
+        return Utility.roundDouble(sampleOfLabel / params.SRATE, timePrecs);
     }
 }

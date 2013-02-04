@@ -16,9 +16,10 @@ public final class WvParams {
 
     public static final int BLOCK_16K_SAMPLE = 16 * 1024; // 16k samples[2 bytes]-per-block -> 32KB-per-block
     public static final int BLOCK_32K_SAMPLE = 32 * 1024; // 32k samples[2 bytes]-per-block -> 64KB-per-block
-    public static final int RED_SIZE_SAMPLE =  16;         // 256 samples[2 bytes]-per-reduction -> 512B-per-reduction
+    public static final int RED_SIZE_SAMPLE = 16;         // 256 samples[2 bytes]-per-reduction -> 512B-per-reduction
     public static final int SAMPLE_SIZE = 16;             // 2 bytes-per-sample
-    //  params adjusted by WAVEDISPLAY
+   
+    //  params adjusted by WaveDisplay
     public int PIXEL_COUNT = -1;
     public int SAMPLE_COUNT = -1;
     public int ADJ_SAMPLE_COUNT = -1;
@@ -31,6 +32,9 @@ public final class WvParams {
     public double TIME_PER_RED = -1.0;
     public double TIME_PER_SAMPLE = -1.0;
     public double SRATE = 0;
+    public double DUR_MS = -1;
+    
+
+    // raw data from the processor
     public ArrayList<Reduction> wavData = new ArrayList<Reduction>();
-    public double DUR_MS=-1;;
 }

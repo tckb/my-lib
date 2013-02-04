@@ -28,7 +28,7 @@ public class Label {
         return clicked;
     }
 
-    public void sertOverride(boolean clicked) {
+    public void setOverride(boolean clicked) {
         this.clicked = clicked;
     }
     private Rectangle boundingBox;
@@ -102,7 +102,7 @@ public class Label {
     }
 
     public void createBoudingBox() {
-        boundingBox = new Rectangle(x, y, vertLen_inPixels, horizLen_inPixels);
+        boundingBox = new Rectangle(x, y, vertLen_inPixels + 2, horizLen_inPixels + 2);
     }
 
     public void deleteLabelBox() {
