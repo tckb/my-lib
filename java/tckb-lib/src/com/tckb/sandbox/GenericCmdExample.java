@@ -28,15 +28,17 @@ public class GenericCmdExample extends Observable {
 //            testPM.runCommand();
 //            
 
-            GenericCmdv2 testPM2 = new GenericCmdv2("java-run");
+            GenericCmdv2 testPM2 = new GenericCmdv2();
 
             GenericCmdLogObserver defaultObserver = testPM2.enableDefaultObserver();
             defaultObserver.attachMethodCallWithParams(GenericCmdExample.class.getName(), "sayHello");
             defaultObserver.attachMethodCallWithParams(GenericCmdExample.class.getName(), "eat", new Integer(10), new Double(5.55), "croissant");
             defaultObserver.attachMethodCall(GenericCmdExample.class.getName(), "sayGoodBye");
             // defaultObserver.attachMethodCallWithParams(main.class.getName(), "test");
-            testPM2.setCommand("java");
-            testPM2.addFlag("jar", "/Users/tckb/Desktop/Junk/Text2XCAS.jar");
+            testPM2.setCommand("ls");
+           testPM2.addFlag("jar", "/Users/tckb/Desktop/Junk/Text2XCAS.jar");
+//            testPM2.addFlag("", "/");
+            
             testPM2.runCommand(false);
 
 

@@ -16,6 +16,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JTextArea;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -365,6 +366,15 @@ public class Utility {
         throw new UnsupportedOperationException("Not yet implemented");
     }
 
+    public static File getFileFromUI() {
+        JFileChooser jfc = new JFileChooser();
+        jfc.setDialogTitle("Utility: FileChooser");
+        jfc.showOpenDialog(new JFrame());
+
+        return jfc.getSelectedFile();
+
+    }
+
     public static File getFileFromUI(JComponent parent) {
         JFileChooser jfc = new JFileChooser();
         jfc.setDialogTitle("Utility: FileChooser");
@@ -690,6 +700,17 @@ public class Utility {
 
         }
     }
+    /**
+     *  NOT MEANT TO BE USED IN JAVA ! <br/>
+     *  - WRITTEN FOR ACCESSIBILITY IN MATLAB -
+     * @return new Utility object
+     */
+    public static Utility getObjectForMatLab(){
+        return new Utility();
+        
+    }
+    
+    
 }
 // -DEAD CODE -
 //    public static File createOutFile(DIR type, String parent, String child) throws IOException {

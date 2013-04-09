@@ -52,14 +52,8 @@ public class WaveDisplay extends AudioDisplay {
     private int WIN_MAX_VERPX = 0;
     private int FONT_CHAR_GAP = 0;
     private int WAVE_HEIGHT;
-    private boolean displayPixels;
-    private boolean displayLabels;
-    private boolean displayInfo;
-    private boolean displayCrosshair;
-    private boolean displayWinInfo;
-    private int cursor_x, cursor_y;
-    private boolean showCursor = false;
-    private boolean editingLabel;
+  
+
 
     private void setMAX_ZOOM(double level) {
         mylogger.log(Level.INFO, "Settings max zoom: {0}", level);
@@ -67,7 +61,7 @@ public class WaveDisplay extends AudioDisplay {
 
 
     }
-
+    
     @Override
     public double getMAX_ZOOM() {
         return MAX_ZOOM;
@@ -268,6 +262,8 @@ public class WaveDisplay extends AudioDisplay {
         //        }
         // Stroke definitions
         BasicStroke waveStroke = new BasicStroke(w, BasicStroke.CAP_ROUND, BasicStroke.JOIN_MITER);
+        BasicStroke waveStroke2 = new BasicStroke(w*4, BasicStroke.CAP_ROUND, BasicStroke.JOIN_MITER);
+
         BasicStroke currPointerStroke = new BasicStroke(3f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
         BasicStroke labelBBStroke = new BasicStroke(w, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 10f, new float[]{1.0f, 1.0f}, 0.0f); // Dash pattern
 
@@ -739,12 +735,7 @@ public class WaveDisplay extends AudioDisplay {
 
     }
 
-    @Override
-    public void refreshDisplay() {
-        mylogger.info("Refreshing display");
-
-        repaint();
-    }
+    
 
     public Double getWindowSize_sample() {
         return this.windowSize_sample;
@@ -777,45 +768,14 @@ public class WaveDisplay extends AudioDisplay {
 
     }
 
-    @Override
-    public boolean toggleDisplay() {
-        displayPixels = !displayPixels;
-        repaint();
-        return displayPixels;
-    }
+    
 
     @Override
     public void setDisplayInfo(String info) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    @Override
-    public boolean toggleLabels() {
-        displayLabels = !displayLabels;
-        repaint();
-        return displayLabels;
-    }
-
-    @Override
-    public boolean toggleInfo() {
-        displayInfo = !displayInfo;
-        repaint();
-        return displayInfo;
-    }
-
-    @Override
-    public boolean toggleCrosshair() {
-        displayCrosshair = !displayCrosshair;
-        repaint();
-        return displayCrosshair;
-    }
-
-    @Override
-    public boolean toggleWindowInfo() {
-        displayWinInfo = !displayWinInfo;
-        repaint();
-        return displayWinInfo;
-    }
+  
 
     @Override
     public Label getLabelAtXY(int x, int y) {
@@ -831,45 +791,17 @@ public class WaveDisplay extends AudioDisplay {
 
     }
 
-    @Override
-    public void highLightLabel(Label l) {
-    }
-
-    @Override
-    public void setLabelAtXY(Label l, int x, int y) {
-        if (editingLabel) {
-            l.setOverride(true); // just a flag
-            l.setHorzPixel(x);
-            l.setVertPixel(y);
-            repaint();
-
-        }
-
-
-    }
-
-    @Override
-    public void showCursorAt(int x, int y) {
-        this.cursor_x = x;
-        this.cursor_y = y;
-        repaint();
-
-    }
-
-    @Override
-    public void showCursor(boolean show) {
-        this.showCursor = show;
-        repaint();
-    }
-
-    @Override
-    public void editLabels(boolean b) {
-        this.editingLabel = b;
-        repaint();
-    }
-
+   
+   
     @Override
     public double getLabelTimeStamp(double sampleOfLabel) {
         return Utility.roundDouble(sampleOfLabel / params.SRATE, timePrecs);
     }
+
+    @Override
+    public void highLightLabel(Label l) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+   
 }

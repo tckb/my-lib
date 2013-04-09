@@ -54,7 +54,7 @@ public class AudProcessor {
 
         // Independent Variables: Constants
         double[] origDataSamples = audio.getAudioData_fast(channel); // get the first channel
-        System.out.println("Data read!");
+        mylogger.info("raw data read");
         DenseMatrix64F audioData = new DenseMatrix64F(1, origDataSamples.length);
         for (int j = 0; j < origDataSamples.length; j++) {
             audioData.set(0, j, origDataSamples[j]);
@@ -166,6 +166,8 @@ public class AudProcessor {
         return wavePanel;
     }
 }
+
+// -- DEAD CODE --
 //        Dataset data2 = new DefaultDataset();
 //        for (int j = 0; j < rSize; j++) {
 //

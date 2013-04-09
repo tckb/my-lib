@@ -16,7 +16,7 @@ public final class WvParams {
 
     public static final int BLOCK_16K_SAMPLE = 16 * 1024; // 16k samples[2 bytes]-per-block -> 32KB-per-block
     public static final int BLOCK_32K_SAMPLE = 32 * 1024; // 32k samples[2 bytes]-per-block -> 64KB-per-block
-    public static final int RED_SIZE_SAMPLE = 16;         // 256 samples[2 bytes]-per-reduction -> 512B-per-reduction
+    public static final int RED_SIZE_SAMPLE = 2;         // 256 samples[2 bytes]-per-reduction -> 512B-per-reduction
     public static final int SAMPLE_SIZE = 16;             // 2 bytes-per-sample
    
     //  params adjusted by WaveDisplay

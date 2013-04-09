@@ -8,11 +8,16 @@ import com.tckb.audio.part.Label;
 import com.tckb.audio.ui.AudioUI;
 import com.tckb.audio.ui.display.AudioDisplay;
 import com.tckb.util.Utility;
+import java.awt.AWTException;
+import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.imageio.ImageIO;
+import javax.swing.SwingWorker;
 
 /**
  *
@@ -24,6 +29,10 @@ public class AudioUIDemo extends javax.swing.JFrame {
     AudioUI myAudio = new AudioUI();
     AudioUI myAudio2 = new AudioUI();
     Label l;
+    static ArrayList<BufferedImage> imgList;
+    int frameRate = 12;// 12fps
+    int recordingTime = 60; // secs
+    String path = "/Users/tckb/Desktop/test";
 
     /**
      * Creates new form AudioUIDemo
@@ -65,6 +74,8 @@ public class AudioUIDemo extends javax.swing.JFrame {
         jToggleButton1 = new javax.swing.JToggleButton();
         jToggleButton3 = new javax.swing.JToggleButton();
         jButton8 = new javax.swing.JButton();
+        jButton11 = new javax.swing.JButton();
+        record = new javax.swing.JToggleButton();
         jButton4 = new javax.swing.JButton();
         label = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
@@ -185,6 +196,20 @@ public class AudioUIDemo extends javax.swing.JFrame {
             }
         });
 
+        jButton11.setText("Save screenshot");
+        jButton11.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton11ActionPerformed(evt);
+            }
+        });
+
+        record.setText("Record screen");
+        record.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                recordActionPerformed(evt);
+            }
+        });
+
         org.jdesktop.layout.GroupLayout jPanel1Layout = new org.jdesktop.layout.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -196,12 +221,15 @@ public class AudioUIDemo extends javax.swing.JFrame {
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, myPanel)
                     .add(jPanel1Layout.createSequentialGroup()
                         .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(filechooserBut)
                             .add(jPanel1Layout.createSequentialGroup()
                                 .add(playAudio)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(stopAudio)))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 108, Short.MAX_VALUE)
+                                .add(stopAudio))
+                            .add(jPanel1Layout.createSequentialGroup()
+                                .add(filechooserBut)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(record)))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 14, Short.MAX_VALUE)
                         .add(zoomStepUI, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 33, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(jLabel1)
@@ -215,13 +243,17 @@ public class AudioUIDemo extends javax.swing.JFrame {
                         .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(jButton8)
                             .add(jToggleButton1))
-                        .add(18, 18, 18)
-                        .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                        .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
                             .add(jPanel1Layout.createSequentialGroup()
+                                .add(18, 18, 18)
                                 .add(currPos, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 73, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
                                 .add(jButton7))
-                            .add(jToggleButton3))))
+                            .add(jPanel1Layout.createSequentialGroup()
+                                .add(10, 10, 10)
+                                .add(jButton11)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .add(jToggleButton3)))))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
@@ -244,7 +276,8 @@ public class AudioUIDemo extends javax.swing.JFrame {
                             .add(currPos, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                             .add(jToggleButton1)
                             .add(jButton7)
-                            .add(filechooserBut))
+                            .add(filechooserBut)
+                            .add(record))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
@@ -253,7 +286,8 @@ public class AudioUIDemo extends javax.swing.JFrame {
                             .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                                 .add(jToggleButton3)
                                 .add(jButton8)
-                                .add(jButton2))))
+                                .add(jButton2)
+                                .add(jButton11))))
                     .add(jPanel1Layout.createSequentialGroup()
                         .add(18, 18, 18)
                         .add(jButton3)))
@@ -374,7 +408,7 @@ public class AudioUIDemo extends javax.swing.JFrame {
                         .add(pres, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(jLabel6)))
-                .addContainerGap(136, Short.MAX_VALUE))
+                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                 .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .add(jSeparator1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 739, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
@@ -416,7 +450,7 @@ public class AudioUIDemo extends javax.swing.JFrame {
         audFile = Utility.getFileFromUI(myPanel, Utility.wavFileFilter);
         myAudio.setAudioFile(audFile);
         myAudio.getDisplay(AudioDisplay.TYPE.WAVEFORM).setCrosshairLen(20);
-        myAudio.getDisplay(AudioDisplay.TYPE.WAVEFORM).setZoomLevel(7);;
+        myAudio.getDisplay(AudioDisplay.TYPE.WAVEFORM).setZoomLevel(7);
         myAudio.getDisplay(AudioDisplay.TYPE.WAVEFORM).showCursor(false);
 
     }//GEN-LAST:event_filechooserButActionPerformed
@@ -569,7 +603,7 @@ public class AudioUIDemo extends javax.swing.JFrame {
 
 
         labels.append("#####################").append(Utility.LINE_BREAK);
-        labels.append("# Labels exported @ ").append(Calendar.getInstance().getTime());
+        labels.append("# Labels exported @ ").append(Calendar.getInstance().getTime()).append(Utility.LINE_BREAK);
         labels.append("# by AudioUIDemo ");
 
 
@@ -592,6 +626,58 @@ public class AudioUIDemo extends javax.swing.JFrame {
     private void currPosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_currPosActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_currPosActionPerformed
+
+    private void jButton11ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton11ActionPerformed
+        try {
+            BufferedImage img = myAudio.getDisplay(AudioDisplay.TYPE.WAVEFORM).getCurrentFrameImage();
+            File imgFile = Utility.UI.saveFile(myPanel);
+
+            if (!ImageIO.write(img, "png", imgFile)) {
+                Utility.UI.showInfoMessage(myPanel, "Save failed!");
+            } else {
+                Utility.UI.showInfoMessage(myPanel, "Screenshot saved at: " + imgFile);
+            }
+
+        } catch (IOException ex) {
+            Logger.getLogger(AudioUIDemo.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (AWTException ex) {
+            Logger.getLogger(AudioUIDemo.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+    }//GEN-LAST:event_jButton11ActionPerformed
+
+    private void recordActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_recordActionPerformed
+
+
+        new SwingWorker<Void, Void>() {
+            @Override
+            protected Void doInBackground() throws Exception {
+
+                int total = frameRate * recordingTime;
+                for (int i = 0; i < total; i++) {
+                    try {
+                        imgList.add(myAudio.getDisplay(AudioDisplay.TYPE.WAVEFORM).getCurrentFrameImage());
+                    } catch (AWTException ex) {
+                        Logger.getLogger(AudioUIDemo.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                                    Thread.sleep(10);
+
+                }
+
+
+                for (int j = 0; j < total; j++) {
+                    try {
+                        ImageIO.write(imgList.get(j), "png", new File(path + "/out" + String.format("%06d", j) + ".png"));
+                    } catch (IOException ex) {
+                        Logger.getLogger(AudioUIDemo.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+                return null;
+
+            }
+        }.execute();
+
+    }//GEN-LAST:event_recordActionPerformed
 
     /**
      * @param args the command line arguments
@@ -627,6 +713,7 @@ public class AudioUIDemo extends javax.swing.JFrame {
         Logger.getLogger("com.tckb").setLevel(Level.OFF);
 
 
+        imgList = new ArrayList<BufferedImage>();
         /*
          * Create and display the form
          */
@@ -643,6 +730,7 @@ public class AudioUIDemo extends javax.swing.JFrame {
     private javax.swing.JButton filechooserBut;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton10;
+    private javax.swing.JButton jButton11;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
@@ -667,6 +755,7 @@ public class AudioUIDemo extends javax.swing.JFrame {
     private javax.swing.JScrollPane myPanel;
     private javax.swing.JButton playAudio;
     private javax.swing.JTextField pres;
+    private javax.swing.JToggleButton record;
     private javax.swing.JButton stopAudio;
     private javax.swing.JTextField time;
     private javax.swing.JTextField zoomStepUI;

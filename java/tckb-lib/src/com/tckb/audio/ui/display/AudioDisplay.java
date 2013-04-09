@@ -1,6 +1,11 @@
 package com.tckb.audio.ui.display;
 
 import com.tckb.audio.part.Label;
+import java.awt.AWTException;
+import java.awt.Image;
+import java.awt.Rectangle;
+import java.awt.Robot;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import javax.swing.JPanel;
 
@@ -11,8 +16,18 @@ import javax.swing.JPanel;
 public abstract class AudioDisplay extends JPanel {
 
     protected int timePrecs = 2; // 2 digits after decimal point
+    protected boolean displayPixels;
+    protected boolean displayLabels;
+    protected boolean displayInfo;
+    protected boolean displayCrosshair;
+    protected boolean displayWinInfo;
+    protected boolean showCursor = false;
+    protected boolean editingLabel;
+    protected int cursor_x, cursor_y;
 
-
+    /**
+     * Type of display
+     */
     public static enum TYPE {
 
         /**
@@ -74,10 +89,9 @@ public abstract class AudioDisplay extends JPanel {
      */
     abstract public int getZoomStep();
 
-    /**
-     *
-     */
-    abstract public void refreshDisplay();
+    public void refreshDisplay() {
+        repaint();
+    }
 
     /**
      *
@@ -140,11 +154,11 @@ public abstract class AudioDisplay extends JPanel {
      */
     abstract public void zoomOut();
 
-    /**
-     *
-     * @return
-     */
-    abstract public boolean toggleDisplay();
+    public boolean toggleDisplay() {
+        displayPixels = !displayPixels;
+        repaint();
+        return displayPixels;
+    }
 
     /**
      *
@@ -152,29 +166,29 @@ public abstract class AudioDisplay extends JPanel {
      */
     abstract public void setDisplayInfo(String info);
 
-    /**
-     *
-     * @return
-     */
-    abstract public boolean toggleLabels();
+    public boolean toggleLabels() {
+        displayLabels = !displayLabels;
+        repaint();
+        return displayLabels;
+    }
 
-    /**
-     *
-     * @return
-     */
-    abstract public boolean toggleInfo();
+    public boolean toggleInfo() {
+        displayInfo = !displayInfo;
+        repaint();
+        return displayInfo;
+    }
 
-    /**
-     *
-     * @return
-     */
-    abstract public boolean toggleCrosshair();
+    public boolean toggleCrosshair() {
+        displayCrosshair = !displayCrosshair;
+        repaint();
+        return displayCrosshair;
+    }
 
-    /**
-     *
-     * @return
-     */
-    abstract public boolean toggleWindowInfo();
+    public boolean toggleWindowInfo() {
+        displayWinInfo = !displayWinInfo;
+        repaint();
+        return displayWinInfo;
+    }
 
     /**
      *
@@ -187,35 +201,41 @@ public abstract class AudioDisplay extends JPanel {
     /**
      *
      * @param l
-     * @param x
-     * @param y
-     */
-    abstract public void setLabelAtXY(Label l, int x, int y);
-
-    /**
-     *
-     * @param l
      */
     abstract public void highLightLabel(Label l);
 
-    /**
-     *
-     * @param x
-     * @param y
-     */
-    abstract public void showCursorAt(int x, int y);
+    public void setLabelAtXY(Label l, int x, int y) {
+        if (editingLabel) {
+            l.setOverride(true); // just a flag
+            l.setHorzPixel(x);
+            l.setVertPixel(y);
+            repaint();
+
+        }
+
+
+    }
+
+    public void showCursorAt(int x, int y) {
+        this.cursor_x = x;
+        this.cursor_y = y;
+        repaint();
+
+    }
+
+    public void showCursor(boolean show) {
+        this.showCursor = show;
+        repaint();
+    }
 
     /**
      *
      * @param b
      */
-    abstract public void showCursor(boolean b);
-
-    /**
-     *
-     * @param b
-     */
-    abstract public void editLabels(boolean b);
+    public void editLabels(boolean b) {
+        this.editingLabel = b;
+        repaint();
+    }
 
     /**
      *
@@ -229,6 +249,20 @@ public abstract class AudioDisplay extends JPanel {
 
     public void setTimePrecision(int digits) {
         this.timePrecs = digits;
+
+    }
+
+    /**
+     *
+     * @return currentPanel image
+     * @throws AWTException
+     */
+    public BufferedImage getCurrentFrameImage() throws AWTException {
+
+        BufferedImage thisPanel = new Robot().createScreenCapture(
+                new Rectangle(this.getLocationOnScreen().x, this.getLocationOnScreen().y,
+                this.getWidth(), this.getHeight()));
+        return thisPanel;
 
     }
 }

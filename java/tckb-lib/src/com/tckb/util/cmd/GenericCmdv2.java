@@ -32,10 +32,25 @@ public class GenericCmdv2 extends GenericCmd {
     }
 
     /**
-     * Adds a flag ( -flag value ) to the command
-     *  
+     * Adds a flag ( -flag value ) to the command.<br/> - null value for 'flag'
+     * and or 'value' is <b> NOT </b> acceptable. <br/> <br/> For example,
+     * <br/><br/>
+     * <code>
+     *...<br/>
+     * // To run "java -version" <br/>
+     * command1.setCommand("java"); <br/>
+     * command1.setFlag("version","");<br/>
+     * command1.runCommand(false);<br/>
+     * ...<br/> 
+     * // To run "ls /Users/tckb" <br/>
+     * command2.setCommand("ls"); <br/>
+     * command2.setFlag("","/Users/tckb/"); <br/>
+     * command2.runCommand(true); // 'batch' mode of executing command<br/>
+     * ...
+     * </code>
+     *
      * @param flag
-     * @param value 
+     * @param value
      */
     public void addFlag(String flag, String value) {
         if (!flag.isEmpty()) {
@@ -181,7 +196,7 @@ public class GenericCmdv2 extends GenericCmd {
                 if (!((String) e.getKey()).startsWith("_$")) {
                     flagList.add("-" + e.getKey());
                     flagList.add((String) e.getValue());
-                }else{
+                } else {
                     flagList.add((String) e.getValue());
                 }
 

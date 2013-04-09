@@ -26,9 +26,7 @@ import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 /**
- * Based on Hack from
- * http://codeidol.com/java/swing/Audio/Play-Non-Trivial-Audio Implementation of
- * javax.sound.sampled.Clip can't handle large audio file
+ * Based on the hack http://codeidol.com/java/swing/Audio/Play-Non-Trivial-Audio  <br/>
  *
  * @author tckb
  */
@@ -1025,7 +1023,7 @@ public class NonTrivialAudio implements Runnable {
 
         @Override
         public String getMessage() {
-            return "Only 16-bit-per-sample supported ";
+            return "Only 16-bit sample supported! ";
         }
     }
 }
